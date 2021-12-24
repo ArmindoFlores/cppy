@@ -1,0 +1,29 @@
+#ifndef _PYTYPES_H_
+#define _PYTYPES_H_
+
+#include "pyobject.h"
+#include "pytype.h"
+#include <memory>
+#include <map>
+#include <string>
+
+namespace cpy {
+    namespace globals {
+        class BuiltinTypes {
+        public:
+            static BuiltinTypes &the();
+
+            PyObjectPtr get_type_named(const std::string& name) const;
+
+        private:
+            static std::shared_ptr<BuiltinTypes> instance;
+            std::map<std::string, PyObjectPtr> types;
+            
+            BuiltinTypes();
+
+            static PyObjectPtr __str__(const ParsedFunctionArguments&);
+        };
+    }
+}
+
+#endif
