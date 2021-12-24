@@ -9,7 +9,7 @@ namespace cpy {
 
     class PyObject {
     public:
-        PyObject() = default;
+        PyObject();
         virtual ~PyObject() = default;
 
         std::shared_ptr<PyObject> getattr(const std::string& name) const;
