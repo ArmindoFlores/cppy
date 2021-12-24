@@ -10,10 +10,10 @@ namespace cpy {
         PyNone();
         ~PyNone() = default;
 
-        static PyObjectPtr __bool__(const FunctionArguments&);
-        static PyObjectPtr __repr__(const FunctionArguments&);
-        static PyObjectPtr __str__(const FunctionArguments&);
-        static PyObjectPtr __call__(const FunctionArguments&);
+        static PyObjectPtr __bool__(const ParsedFunctionArguments&);
+        static PyObjectPtr __repr__(const ParsedFunctionArguments&);
+        static PyObjectPtr __str__(const ParsedFunctionArguments&);
+        static PyObjectPtr __call__(const ParsedFunctionArguments&);
 
     };
 }
