@@ -9,26 +9,26 @@ const char *traceback_exception::what() const noexcept
     return signature.c_str();
 }
 
-Traceback *Traceback::instance = nullptr;
+std::shared_ptr<Traceback> Traceback::instance = nullptr;
 
 Traceback::Traceback() {}
 
 Traceback &Traceback::the()
 {
     if (instance == nullptr) {
-        instance = new Traceback();
+        instance = std::shared_ptr<Traceback>(new Traceback());
     }
     return *instance;
 }
 
 void Traceback::push(const std::string& s)
 {
-    tb.push_front(s);
+    tb.push_back(s);
 }
 
 void Traceback::pop()
 {
-    tb.pop_front();
+    tb.pop_back();
 }
 
 void Traceback::raise(const std::string& msg, const std::string& signature)
@@ -38,8 +38,8 @@ void Traceback::raise(const std::string& msg, const std::string& signature)
 
     std::string message = create_message(msg);
 
-    while (!tb.empty() && tb.front() != signature) {
-        tb.pop_front();
+    while (!tb.empty() && tb.back() != signature) {
+        tb.pop_back();
     }
 
     throw traceback_exception(message);

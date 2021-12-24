@@ -3,6 +3,7 @@
 
 #include <list>
 #include <string>
+#include <memory>
 
 namespace cpy {
     namespace globals {
@@ -23,7 +24,7 @@ namespace cpy {
             void raise(const std::string& msg, const std::string& signature);
 
         private:
-            static Traceback* instance;
+            static std::shared_ptr<Traceback> instance;
             Traceback();
 
         protected:
