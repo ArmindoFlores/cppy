@@ -1,6 +1,6 @@
 #include "pystring.h"
 #include "pyfunction.h"
-#include "helpers.h"
+#include "pyhelpers.h"
 #include "pytraceback.h"
 using namespace cpy;
 #include <iostream>
@@ -8,24 +8,26 @@ using namespace cpy;
 
 PyString::PyString(const std::string &s) : internal(s) 
 {
-    setattr("__str__", std::make_shared<PyFunction>(__str__, "__str__"));
-    setattr("capitalize", std::make_shared<PyFunction>(capitalize, "capitalize"));
+    std::vector<std::string> param_names;
+    param_names.push_back("self");
+
+    setattr("__str__", std::make_shared<PyFunction>(
+        __str__, "__str__", param_names
+    ));
+    setattr("capitalize", std::make_shared<PyFunction>(
+        capitalize, "capitalize", param_names
+    ));
 }
 
-PyObjectPtr PyString::__str__(const FunctionArguments &args)
+PyObjectPtr PyString::__str__(const ParsedFunctionArguments &args)
 {
-    if (args.size() != 1) {
-        globals::Traceback::the().raise("TypeError: expected 1 argument, got " + std::to_string(args.size()), "TypeError");
-    }
-    return args[0].get_object();
+    return args.get_arg_named("self");
 }
 
-PyObjectPtr PyString::capitalize(const FunctionArguments &args)
+PyObjectPtr PyString::capitalize(const ParsedFunctionArguments &args)
 {
-    if (args.size() != 1) {
-        globals::Traceback::the().raise("TypeError: expected 1 argument, got " + std::to_string(args.size()), "TypeError");
-    }
-    std::string new_str = args[0].get_object()->as<PyString>().internal;
+
+    std::string new_str = args.get_arg_named("self")->as<PyString>().internal;
     for (char &x : new_str)
         x = toupper(x);
     return helpers::new_string(new_str);
