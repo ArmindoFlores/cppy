@@ -1,9 +1,9 @@
 #include <iostream>
-#include "builtins.h"
+#include "pybuiltins.h"
 #include "pyfunction.h"
 #include "pystring.h"
 #include "pytraceback.h"
-#include "helpers.h"
+#include "pyhelpers.h"
 using namespace cpy;
 
 PyObjectPtr builtins::__print__(PyObjectPtr obj)

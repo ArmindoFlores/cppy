@@ -2,9 +2,9 @@
 #define _CPY_H_
 
 #include "pyobject.h"
-#include "builtins.h"
+#include "pybuiltins.h"
 #include "pystring.h"
 #include "pytraceback.h"
-#include "helpers.h"
+#include "pyhelpers.h"
 
 #endif
