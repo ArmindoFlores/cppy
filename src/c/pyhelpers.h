@@ -1,5 +1,5 @@
-#ifndef _HELPERS_H_
-#define _HELPERS_H_
+#ifndef _PYHELPERS_H_
+#define _PYHELPERS_H_
 
 #include <memory>
 #include "pyobject.h"
