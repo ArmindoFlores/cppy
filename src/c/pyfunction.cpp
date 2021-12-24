@@ -36,6 +36,15 @@ ParseResult ParsedFunctionArguments::parse(const FunctionArguments& fa)
     unparsed_args = fa;
     std::size_t extra_params = 0;
     std::size_t total_positional = param_names.size() - (int) dstar - (int) (star_pos != -1);
+
+    // FIXME: this looks a bit iffy
+    for (std::size_t i = 0; i < defaults.size(); i++) {
+        std::size_t k = defaults_offset + i;
+        if (k >= star_pos && star_pos >= defaults_offset)
+            k++;
+        positional[param_names[k]] = defaults[i];
+    }
+
     for (std::size_t i = 0; i < fa.size(); i++) {
         if (fa[i].is_named()) {
             if (i != star_pos && (i != param_names.size()-1 || !dstar) && std::any_of(param_names.begin(), param_names.end(), [&fa, i](const std::string& elem){ return elem == fa[i].get_name(); }))
@@ -123,7 +132,7 @@ PyFunction::PyFunction(
     std::size_t defaults_offset,
     std::size_t star_pos,
     bool dstar
-) : internal(f), function_name(fn), param_names(param_names), defaults_offset(defaults_offset), star_pos(star_pos), dstar(dstar) {}
+) : internal(f), function_name(fn), param_names(param_names), defaults(defaults), defaults_offset(defaults_offset), star_pos(star_pos), dstar(dstar) {}
 
 PyObjectPtr PyFunction::call(const FunctionArguments &args)
 {
@@ -145,7 +154,7 @@ PyObjectPtr PyFunction::call(const FunctionArguments &args)
             );
         }
         case ParseResultType::MISSING_POSITIONAL_ARGS: {
-            std::string error_msg = "TypeError: " + function_name + "() missing " + std::to_string(parse_result.missing_args.size()) + "  required positional argument";
+            std::string error_msg = "TypeError: " + function_name + "() missing " + std::to_string(parse_result.missing_args.size()) + " required positional argument";
             if (parse_result.missing_args.size() != 1)
                 error_msg += "s";
             error_msg += ": ";
