@@ -6,5 +6,6 @@
 #include "pystring.h"
 #include "pytraceback.h"
 #include "pyhelpers.h"
+#include "pyint.h"
 
 #endif

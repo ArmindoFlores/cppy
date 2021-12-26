@@ -5,6 +5,8 @@
 #include "pyobject.h"
 #include "pyfunction.h"
 
+#define BF cpy::globals::BuiltinFunctions::the()
+
 namespace cpy {
     namespace globals {
         class BuiltinFunctions {
@@ -21,6 +23,9 @@ namespace cpy {
 
             static PyObjectPtr __print__(const ParsedFunctionArguments& obj);
             static PyObjectPtr __repr__(const ParsedFunctionArguments& obj);
+            static PyObjectPtr __id__(const ParsedFunctionArguments& obj);
+            static PyObjectPtr __dir__(const ParsedFunctionArguments& obj);
+            static PyObjectPtr __type__(const ParsedFunctionArguments& obj);
         };
     }
 }

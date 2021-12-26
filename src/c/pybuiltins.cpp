@@ -2,6 +2,8 @@
 #include "pybuiltins.h"
 #include "pyfunction.h"
 #include "pystring.h"
+#include "pyint.h"
+#include "pytypes.h"
 #include "pytraceback.h"
 #include "pyhelpers.h"
 using namespace cpy;
@@ -12,7 +14,7 @@ std::shared_ptr<BuiltinFunctions> BuiltinFunctions::instance = nullptr;
 BuiltinFunctions::BuiltinFunctions()
 {
     // <built-in function print>
-    PyObjectPtr print_func = std::make_shared<PyFunction>(
+    functions["print"] = std::make_shared<PyFunction>(
         __print__,
         "print",
         std::vector<std::string>({"values", "sep", "end"}),
@@ -20,7 +22,13 @@ BuiltinFunctions::BuiltinFunctions()
         1,
         0
     );
-    functions["print"] = print_func;
+
+    // <built-in function id>
+    functions["id"] = std::make_shared<PyFunction>(
+        __id__,
+        "id",
+        std::vector<std::string>({"obj"})
+    );
 }
 
 BuiltinFunctions &BuiltinFunctions::the()
@@ -58,6 +66,12 @@ PyObjectPtr BuiltinFunctions::__print__(const ParsedFunctionArguments& args)
 
     std::cout << end_string->internal;
     return helpers::new_none();
+}
+
+PyObjectPtr BuiltinFunctions::__id__(const ParsedFunctionArguments& args)
+{
+    auto obj = args.get_arg_named("obj");
+    return helpers::new_int(reinterpret_cast<std::uintptr_t>(obj.get()));
 }
 
 PyObjectPtr BuiltinFunctions::get_function_named(const std::string& name) const
