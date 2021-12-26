@@ -1,5 +1,6 @@
 #include "pyhelpers.h"
 #include "pystring.h"
+#include "pyint.h"
 #include "pyfunction.h"
 #include "pytraceback.h"
 #include "pyglobalinstances.h"
@@ -8,6 +9,11 @@ using namespace cpy;
 PyObjectPtr helpers::new_string(const std::string& s)
 {
     return std::make_shared<PyString>(s);
+}
+
+PyObjectPtr helpers::new_int(long long x)
+{
+    return std::make_shared<PyInt>(x);
 }
 
 PyObjectPtr helpers::new_none()

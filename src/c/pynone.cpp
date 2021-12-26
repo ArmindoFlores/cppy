@@ -13,7 +13,7 @@ PyNone::PyNone()
 
 PyObjectPtr PyNone::__str__(const ParsedFunctionArguments &args)
 {
-    return std::make_shared<PyString>("None");
+    return __repr__(args);
 }
 
 PyObjectPtr PyNone::__repr__(const ParsedFunctionArguments &args)

@@ -7,7 +7,7 @@ using namespace cpy;
 #include <iostream>
 #include <cctype>
 
-PyString::PyString(const std::string &s) : internal(s) 
+PyString::PyString()
 {
     setattr("__str__", std::make_shared<PyFunction>(
         __str__, "__str__", std::vector<std::string>({"self"})
@@ -16,6 +16,11 @@ PyString::PyString(const std::string &s) : internal(s)
     setattr("capitalize", std::make_shared<PyFunction>(
         capitalize, "capitalize", std::vector<std::string>({"self"})
     ));
+}
+
+PyString::PyString(const std::string &s) : PyString()
+{
+    internal = s;
 }
 
 PyObjectPtr PyString::__str__(const ParsedFunctionArguments &args)

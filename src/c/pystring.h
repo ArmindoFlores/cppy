@@ -7,7 +7,7 @@
 namespace cpy {
     class PyString : public PyObject {
     public:
-        PyString() = default;
+        PyString();
         PyString(const std::string&);
         ~PyString() = default;
 
