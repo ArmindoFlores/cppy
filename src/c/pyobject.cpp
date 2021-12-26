@@ -36,11 +36,20 @@ PyObject::PyObject()
 PyObjectPtr PyObject::getattr(const std::string& name) const
 {
     if (!hasattr(name))
-        globals::Traceback::the().raise("AttributeError: X object has no attribute '" + name + "'", "AttributeError");
-    return attributes.at(name);
+        TB.raise("AttributeError: X object has no attribute '" + name + "'", "AttributeError");
+
+    auto &attr = attributes.at(name);
+
+    if (std::holds_alternative<PyObjectPtr>(attr))
+        return std::get<PyObjectPtr>(attr);
+    else if (std::holds_alternative<std::function<PyObjectPtr(void)>>(attr))
+        return std::get<std::function<PyObjectPtr(void)>>(attr)();
+    
+    // This should never be reached unless we have an invalid variant
+    throw std::bad_variant_access();
 }
 
-void PyObject::setattr(const std::string& name, PyObjectPtr value)
+void PyObject::setattr(const std::string& name, PyObjectPtrOrFunc value)
 {
     attributes[name] = value;
 }

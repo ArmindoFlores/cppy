@@ -117,7 +117,12 @@ const FunctionArguments& ParsedFunctionArguments::as_function_args() const
 }
 
 PyFunction::PyFunction(
-    std::function<PyObjectPtr(const ParsedFunctionArguments&)> f, 
+    PyInternalFunc f, 
+    const std::string& fn
+) : internal(f), function_name(fn), star_pos(-1), dstar(false) {}
+
+PyFunction::PyFunction(
+    PyInternalFunc f, 
     const std::string& fn,
     const std::vector<std::string>& param_names,
     std::size_t star_pos,
@@ -125,7 +130,7 @@ PyFunction::PyFunction(
 ) : internal(f), function_name(fn), param_names(param_names), star_pos(star_pos), dstar(dstar) {}
 
 PyFunction::PyFunction(
-    std::function<PyObjectPtr(const ParsedFunctionArguments&)> f, 
+    PyInternalFunc f, 
     const std::string& fn,
     const std::vector<std::string>& param_names,
     const std::vector<PyObjectPtr> defaults,
@@ -136,7 +141,7 @@ PyFunction::PyFunction(
 
 PyObjectPtr PyFunction::call(const FunctionArguments &args)
 {
-    globals::Traceback::the().push(function_name);
+    TB.push(function_name);
     ParsedFunctionArguments parsed(
         param_names,
         defaults,
@@ -148,7 +153,7 @@ PyObjectPtr PyFunction::call(const FunctionArguments &args)
     
     switch (parse_result.type) {
         case ParseResultType::UNEXPECTED_KEYWORD: {
-            globals::Traceback::the().raise(
+            TB.raise(
                 "TypeError: " + function_name + "() got an unexpected keyword argument '" + parse_result.keyword + "'", 
                 "TypeError"
             );
@@ -168,13 +173,13 @@ PyObjectPtr PyFunction::call(const FunctionArguments &args)
                 error_msg += " ";
             }
 
-            globals::Traceback::the().raise(
+            TB.raise(
                 error_msg,
                 "TypeError"
             );
         }
         case ParseResultType::TOO_MANY_POSITIONAL_ARGS: {
-            globals::Traceback::the().raise(
+            TB.raise(
                 "TypeError: " + function_name + "() takes " + std::to_string(parse_result.needed_given.first) + " positional arguments but " + std::to_string(parse_result.needed_given.second) + " were given",
                 "TypeError"
             );
@@ -184,6 +189,6 @@ PyObjectPtr PyFunction::call(const FunctionArguments &args)
     }
 
     auto result = internal(parsed);
-    globals::Traceback::the().pop();
+    TB.pop();
     return result;
 }

@@ -4,6 +4,8 @@
 #include <map>
 #include <string>
 #include <memory>
+#include <variant>
+#include <functional>
 
 namespace cpy {
 
@@ -12,9 +14,9 @@ namespace cpy {
         PyObject();
         virtual ~PyObject() = default;
 
-        std::shared_ptr<PyObject> getattr(const std::string& name) const;
-        void setattr(const std::string& name, std::shared_ptr<PyObject>);
-        bool hasattr(const std::string& name) const;
+        virtual std::shared_ptr<PyObject> getattr(const std::string& name) const;
+        virtual void setattr(const std::string& name, std::variant<std::shared_ptr<PyObject>, std::function<std::shared_ptr<PyObject>(void)>>);
+        virtual bool hasattr(const std::string& name) const;
         
         template<typename T>
         T& as()
@@ -23,10 +25,11 @@ namespace cpy {
         }
 
     protected:
-        std::map<std::string, std::shared_ptr<PyObject>> attributes;
+        std::map<std::string, std::variant<std::shared_ptr<PyObject>, std::function<std::shared_ptr<PyObject>(void)>>> attributes;
     };
 
     typedef std::shared_ptr<PyObject> PyObjectPtr;
+    typedef std::variant<PyObjectPtr, std::function<PyObjectPtr(void)>> PyObjectPtrOrFunc;
 }
 
 #endif

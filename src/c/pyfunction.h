@@ -70,6 +70,10 @@ namespace cpy {
     public:
         PyFunction(
             std::function<PyObjectPtr(const ParsedFunctionArguments&)>, 
+            const std::string& name
+        );
+        PyFunction(
+            std::function<PyObjectPtr(const ParsedFunctionArguments&)>, 
             const std::string& name, 
             const std::vector<std::string>& param_names,
             std::size_t star_pos = -1,
@@ -96,6 +100,8 @@ namespace cpy {
         std::size_t defaults_offset, star_pos;
         bool dstar = false;
     };
+
+    typedef std::function<PyObjectPtr(const ParsedFunctionArguments&)> PyInternalFunc;
 }
 
 #endif

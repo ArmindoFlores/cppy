@@ -39,12 +39,12 @@ PyObjectPtr BuiltinFunctions::__print__(const ParsedFunctionArguments& args)
 
         PyObjectPtr obj_result = helpers::call_member("__str__", arg, FunctionArguments());
         PyString *obj_string = dynamic_cast<PyString*>(obj_result.get());
-        if (obj_string == nullptr) cpy::globals::Traceback::the().raise("TypeError: __str__() must return a string", "TypeError");
+        if (obj_string == nullptr) TB.raise("TypeError: __str__() must return a string", "TypeError");
 
         // FIXME: sep must already be a string or None
         PyObjectPtr sep_result = helpers::call_member("__str__", args.get_arg_named("sep"), FunctionArguments());
         PyString *sep_string = dynamic_cast<PyString*>(sep_result.get());
-        if (sep_string == nullptr) cpy::globals::Traceback::the().raise("TypeError: __str__() must return a string", "TypeError");
+        if (sep_string == nullptr) TB.raise("TypeError: __str__() must return a string", "TypeError");
 
         std::cout << obj_string->internal;
         if (i != star_args.size()-1) 
@@ -54,10 +54,10 @@ PyObjectPtr BuiltinFunctions::__print__(const ParsedFunctionArguments& args)
     // FIXME: end must already be a string or None
     PyObjectPtr result = helpers::call_member("__str__", args.get_arg_named("end"), FunctionArguments());
     PyString *end_string = dynamic_cast<PyString*>(result.get());
-    if (end_string == nullptr) cpy::globals::Traceback::the().raise("TypeError: __str__() must return a string", "TypeError");
+    if (end_string == nullptr) TB.raise("TypeError: __str__() must return a string", "TypeError");
 
     std::cout << end_string->internal;
-    return helpers::new_string("");
+    return helpers::new_none();
 }
 
 PyObjectPtr BuiltinFunctions::get_function_named(const std::string& name) const

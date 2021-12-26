@@ -7,6 +7,8 @@
 #include <map>
 #include <string>
 
+#define BT cpy::globals::BuiltinTypes::the()
+
 namespace cpy {
     namespace globals {
         class BuiltinTypes {
@@ -22,6 +24,7 @@ namespace cpy {
             BuiltinTypes();
 
             static PyObjectPtr __str__(const ParsedFunctionArguments&);
+            static PyObjectPtr __none__(const ParsedFunctionArguments&);
         };
     }
 }
