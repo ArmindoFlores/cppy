@@ -14,7 +14,7 @@ namespace cpy {
         static PyObjectPtr __bool__(const ParsedFunctionArguments&);
         static PyObjectPtr __repr__(const ParsedFunctionArguments&);
         static PyObjectPtr __str__(const ParsedFunctionArguments&);
-        static PyObjectPtr __class__();
+        static PyObjectPtr __class__(const PyObject&);
 
         static PyObjectPtr capitalize(const ParsedFunctionArguments&);
         static PyObjectPtr casefold(const ParsedFunctionArguments&);

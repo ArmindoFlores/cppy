@@ -21,7 +21,7 @@ PyObjectPtr PyNone::__repr__(const ParsedFunctionArguments &args)
     return std::make_shared<PyString>("None");
 }
 
-PyObjectPtr PyNone::__class__()
+PyObjectPtr PyNone::__class__(const PyObject&)
 {
     return BT.get_type_named("none");
 }

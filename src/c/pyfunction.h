@@ -91,6 +91,7 @@ namespace cpy {
         ~PyFunction() = default;
 
         PyObjectPtr call(const FunctionArguments&);
+        static PyObjectPtr call_wrapper(const PyObject&);
 
     private:
         std::function<PyObjectPtr(const ParsedFunctionArguments&)> internal;

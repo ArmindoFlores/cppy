@@ -22,12 +22,12 @@ PyObjectPtr helpers::new_none()
     return GI.get("none");
 }
 
-PyObjectPtr helpers::call(PyObjectPtr function, FunctionArguments args)
+PyObjectPtr helpers::call(PyObjectPtr callable, FunctionArguments args)
 {
-    auto f = dynamic_cast<PyFunction*>(function.get());
+    auto f = callable->getattr("__call__");
     if (f == nullptr) 
        TB.raise("TypeError: object is not callable", "TypeError");
-    return f->call(args);
+    return f->as<PyFunction>().call(args);
 }
 
 PyObjectPtr helpers::call_member(const std::string& name, PyObjectPtr obj, FunctionArguments args)

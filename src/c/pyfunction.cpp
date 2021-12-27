@@ -35,7 +35,7 @@ ParseResult ParsedFunctionArguments::parse(const FunctionArguments& fa)
 {
     unparsed_args = fa;
     std::size_t extra_params = 0;
-    std::size_t total_positional = param_names.size() - (int) dstar - (int) (star_pos != -1);
+    std::size_t total_positional = param_names.size() - (int) dstar - (int) (star_pos != (std::size_t) -1);
 
     // FIXME: this looks a bit iffy
     for (std::size_t i = 0; i < defaults.size(); i++) {
@@ -60,7 +60,7 @@ ParseResult ParsedFunctionArguments::parse(const FunctionArguments& fa)
             }
         }
         else if (i < star_pos) {
-            if (star_pos == -1) {
+            if (star_pos == (std::size_t) -1) {
                 if (i < param_names.size() - (int) dstar) {
                     positional[param_names[i]] = fa[i].get_object();
                 }
@@ -119,7 +119,7 @@ const FunctionArguments& ParsedFunctionArguments::as_function_args() const
 PyFunction::PyFunction(
     PyInternalFunc f, 
     const std::string& fn
-) : internal(f), function_name(fn), star_pos(-1), dstar(false) {}
+) : PyFunction(f, fn, std::vector<std::string>()) {}
 
 PyFunction::PyFunction(
     PyInternalFunc f, 
@@ -127,7 +127,7 @@ PyFunction::PyFunction(
     const std::vector<std::string>& param_names,
     std::size_t star_pos,
     bool dstar
-) : internal(f), function_name(fn), param_names(param_names), star_pos(star_pos), dstar(dstar) {}
+) : PyFunction(f, fn, param_names, std::vector<PyObjectPtr>(), 0, -1) {}
 
 PyFunction::PyFunction(
     PyInternalFunc f, 
@@ -137,7 +137,25 @@ PyFunction::PyFunction(
     std::size_t defaults_offset,
     std::size_t star_pos,
     bool dstar
-) : internal(f), function_name(fn), param_names(param_names), defaults(defaults), defaults_offset(defaults_offset), star_pos(star_pos), dstar(dstar) {}
+) : internal(f), function_name(fn), param_names(param_names), defaults(defaults), defaults_offset(defaults_offset), star_pos(star_pos), dstar(dstar) 
+{
+    setattr("__call__", call_wrapper);
+}
+
+PyObjectPtr PyFunction::call_wrapper(const PyObject& self)
+{
+    // FIXME: This seems like a horrible way to do it
+    const PyFunction& func = *dynamic_cast<const PyFunction*>(&self);
+    return std::make_shared<PyFunction>(
+        func.internal,
+        "__call__",
+        func.param_names,
+        func.defaults,
+        func.defaults_offset,
+        func.star_pos,
+        func.dstar
+    );
+}
 
 PyObjectPtr PyFunction::call(const FunctionArguments &args)
 {

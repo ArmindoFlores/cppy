@@ -28,7 +28,7 @@ PyObjectPtr PyString::__str__(const ParsedFunctionArguments &args)
     return args.get_arg_named("self");
 }
 
-PyObjectPtr PyString::__class__()
+PyObjectPtr PyString::__class__(const PyObject&)
 {
     return BT.get_type_named("str");
 }

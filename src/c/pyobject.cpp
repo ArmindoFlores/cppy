@@ -42,8 +42,8 @@ PyObjectPtr PyObject::getattr(const std::string& name) const
 
     if (std::holds_alternative<PyObjectPtr>(attr))
         return std::get<PyObjectPtr>(attr);
-    else if (std::holds_alternative<std::function<PyObjectPtr(void)>>(attr))
-        return std::get<std::function<PyObjectPtr(void)>>(attr)();
+    else if (std::holds_alternative<std::function<PyObjectPtr(const PyObject&)>>(attr))
+        return std::get<std::function<PyObjectPtr(const PyObject&)>>(attr)(*this);
     
     // This should never be reached unless we have an invalid variant
     throw std::bad_variant_access();
