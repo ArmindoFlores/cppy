@@ -24,6 +24,13 @@ PyObjectPtr helpers::new_none()
 
 PyObjectPtr helpers::call(PyObjectPtr callable, FunctionArguments args)
 {
+    // First, check if the callable's type is known
+    auto pyfunc_test = dynamic_cast<PyFunction*>(callable.get());
+    if (pyfunc_test != nullptr) {
+        return pyfunc_test->call(args);
+    }
+
+    // Otherwise, just use the __call__ method
     auto f = callable->getattr("__call__");
     if (f == nullptr) 
        TB.raise("TypeError: object is not callable", "TypeError");
