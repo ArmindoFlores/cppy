@@ -4,8 +4,8 @@
 #include "pyint.h"
 #include "pyglobalinstances.h"
 #include "pytraceback.h"
-using namespace cpy;
-using namespace cpy::globals;
+using namespace cppy;
+using namespace cppy::globals;
 
 std::shared_ptr<BuiltinTypes> BuiltinTypes::instance = nullptr;
 

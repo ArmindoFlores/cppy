@@ -4,7 +4,7 @@
 #include "pyfunction.h"
 #include <sstream>
 #include <iostream>
-using namespace cpy;
+using namespace cppy;
 
 PyObjectPtr __repr__(const ParsedFunctionArguments& args)
 {

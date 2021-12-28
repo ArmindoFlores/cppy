@@ -4,7 +4,7 @@
 #include "pyobject.h"
 #include "pyfunction.h"
 
-namespace cpy {
+namespace cppy {
     class PyType : public PyObject {
     public:
         PyType(const std::string& name, PyObjectPtr constructor);

@@ -4,7 +4,7 @@
 #include "pyfunction.h"
 #include "pytraceback.h"
 #include "pyglobalinstances.h"
-using namespace cpy;
+using namespace cppy;
 
 PyObjectPtr helpers::new_string(const std::string& s)
 {

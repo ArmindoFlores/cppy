@@ -7,7 +7,7 @@
 #include <string>
 #include "pyobject.h"
 
-namespace cpy {
+namespace cppy {
     class FunctionArgument {
     public:
         FunctionArgument() = default;

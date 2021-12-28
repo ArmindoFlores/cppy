@@ -7,9 +7,9 @@
 #include <map>
 #include <string>
 
-#define BT cpy::globals::BuiltinTypes::the()
+#define BT cppy::globals::BuiltinTypes::the()
 
-namespace cpy {
+namespace cppy {
     namespace globals {
         class BuiltinTypes {
         public:

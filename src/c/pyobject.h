@@ -7,7 +7,7 @@
 #include <variant>
 #include <functional>
 
-namespace cpy {
+namespace cppy {
 
     class PyObject {
     public:

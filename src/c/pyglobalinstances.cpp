@@ -1,7 +1,7 @@
 #include "pyglobalinstances.h"
 #include "pynone.h"
-using namespace cpy;
-using namespace cpy::global;
+using namespace cppy;
+using namespace cppy::global;
 
 std::shared_ptr<GlobalInstances> GlobalInstances::instance = nullptr;
 

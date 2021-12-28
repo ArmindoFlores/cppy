@@ -5,9 +5,9 @@
 #include "pyobject.h"
 #include "pyfunction.h"
 
-#define BF cpy::globals::BuiltinFunctions::the()
+#define BF cppy::globals::BuiltinFunctions::the()
 
-namespace cpy {
+namespace cppy {
     namespace globals {
         class BuiltinFunctions {
         public:

@@ -1,5 +1,5 @@
 #include "pytraceback.h"
-using namespace cpy::globals;
+using namespace cppy::globals;
 #include <iostream>
 
 traceback_exception::traceback_exception(const std::string& signature) : signature(signature) {}

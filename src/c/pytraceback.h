@@ -5,9 +5,9 @@
 #include <string>
 #include <memory>
 
-#define TB cpy::globals::Traceback::the()
+#define TB cppy::globals::Traceback::the()
 
-namespace cpy {
+namespace cppy {
     namespace globals {
         class traceback_exception : public std::exception {
         public:

@@ -5,3 +5,4 @@ tests/
 src/transpiler/Python3Lexer.py
 src/transpiler/Python3Parser.py
 src/transpiler/Python3Visitor.py
+build/

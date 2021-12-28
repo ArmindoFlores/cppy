@@ -2,7 +2,7 @@
 #include "pystring.h"
 #include "pyfunction.h"
 #include "pytypes.h"
-using namespace cpy;
+using namespace cppy;
 
 PyNone::PyNone()
 {

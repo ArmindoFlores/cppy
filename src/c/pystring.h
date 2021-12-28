@@ -4,7 +4,7 @@
 #include "pyobject.h"
 #include "pyfunction.h"
 
-namespace cpy {
+namespace cppy {
     class PyString : public PyObject {
     public:
         PyString();

@@ -6,23 +6,23 @@ CPPy is a work-in-progress Python to C++ transpiler.
 To test the Python implementation, you can try compiling this C++ program
 
 ```c++
-#include "cpy.h"
+#include "cppy.h"
 #include <iostream>
 
 int main()
 {
-    cpy::globals::Traceback::the().push("main");
+    cppy::globals::Traceback::the().push("main");
     try {
-        auto s1 = cpy::helpers::new_string("hello world");
-        auto s2 = cpy::helpers::new_string("python");
-        auto sep = cpy::helpers::new_string(", ");
-        cpy::helpers::call(
-            cpy::globals::BuiltinFunctions::the().get_function_named("print"),
-            cpy::FunctionArguments({s1, s2, {sep, "sep"}})
+        auto s1 = cppy::helpers::new_string("hello world");
+        auto s2 = cppy::helpers::new_string("python");
+        auto sep = cppy::helpers::new_string(", ");
+        cppy::helpers::call(
+            cppy::globals::BuiltinFunctions::the().get_function_named("print"),
+            cppy::FunctionArguments({s1, s2, {sep, "sep"}})
         );
-        cpy::globals::Traceback::the().pop();
+        cppy::globals::Traceback::the().pop();
     }
-    catch (cpy::globals::traceback_exception& e) {
+    catch (cppy::globals::traceback_exception& e) {
         std::cout << e.what();
     }
 }

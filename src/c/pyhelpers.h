@@ -5,7 +5,7 @@
 #include "pyobject.h"
 #include "pyfunction.h"
 
-namespace cpy {
+namespace cppy {
     class helpers {
     public:
         static PyObjectPtr new_string(const std::string& s);

@@ -1,6 +1,6 @@
 #include "pytype.h"
 #include "pyhelpers.h"
-using namespace cpy;
+using namespace cppy;
 
 PyType::PyType(const std::string& name, PyObjectPtr constructor) : name(name), constructor(constructor) 
 {

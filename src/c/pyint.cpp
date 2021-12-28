@@ -1,7 +1,7 @@
 #include "pyint.h"
 #include "pystring.h"
 #include "pytypes.h"
-using namespace cpy;
+using namespace cppy;
 
 PyInt::PyInt()
 {

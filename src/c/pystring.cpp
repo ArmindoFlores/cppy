@@ -3,7 +3,7 @@
 #include "pyhelpers.h"
 #include "pytraceback.h"
 #include "pytypes.h"
-using namespace cpy;
+using namespace cppy;
 #include <iostream>
 #include <cctype>
 

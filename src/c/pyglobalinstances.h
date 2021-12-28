@@ -6,9 +6,9 @@
 #include <map>
 #include <string>
 
-#define GI cpy::global::GlobalInstances::the()
+#define GI cppy::global::GlobalInstances::the()
 
-namespace cpy {
+namespace cppy {
     namespace global {
         class GlobalInstances {
         public:

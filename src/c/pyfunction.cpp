@@ -1,6 +1,6 @@
 #include "pyfunction.h"
 #include "pytraceback.h"
-using namespace cpy;
+using namespace cppy;
 #include <algorithm>
 
 FunctionArgument::FunctionArgument(PyObjectPtr obj, const std::string& name) : o(obj), name(name) {}

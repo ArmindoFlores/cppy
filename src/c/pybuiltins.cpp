@@ -6,8 +6,8 @@
 #include "pytypes.h"
 #include "pytraceback.h"
 #include "pyhelpers.h"
-using namespace cpy;
-using namespace cpy::globals;
+using namespace cppy;
+using namespace cppy::globals;
 
 std::shared_ptr<BuiltinFunctions> BuiltinFunctions::instance = nullptr;
 
