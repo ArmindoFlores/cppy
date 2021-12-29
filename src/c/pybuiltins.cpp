@@ -85,7 +85,7 @@ PyObjectPtr BuiltinFunctions::__input__(const ParsedFunctionArguments& args)
         FunctionArguments({prompt, {helpers::new_string(""), "end"}})
     );
     std::string result;
-    std::cin >> result;
+    std::getline(std::cin, result);
     return helpers::new_string(result);
 }
 
