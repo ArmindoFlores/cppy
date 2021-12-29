@@ -2,6 +2,8 @@
 #include "pyhelpers.h"
 #include "pybuiltins.h"
 #include "pyint.h"
+#include "pylist.h"
+#include "pygarbagecollector.h"
 #include "pyglobalinstances.h"
 #include "pytraceback.h"
 using namespace cppy;
@@ -43,6 +45,15 @@ BuiltinTypes::BuiltinTypes()
             1
         )
     );
+
+    // <class 'list'>
+    types["list"] = std::make_shared<PyType>(
+        "list",
+        std::make_shared<PyFunction>(
+            __list__,
+            "list"
+        )
+    );
 }
 
 BuiltinTypes &BuiltinTypes::the()
@@ -69,15 +80,20 @@ PyObjectPtr BuiltinTypes::__str__(const ParsedFunctionArguments& args)
 PyObjectPtr BuiltinTypes::__int__(const ParsedFunctionArguments& args)
 {
     // FIXME: currently we can only make integers out of other integers
-    auto base = args.get_arg_named("base")->as<PyInt>().value;
-    auto value = args.get_arg_named("x")->as<PyInt>().value;
+    auto base = args.get_arg_named("base")->as<PyInt>()->value;
+    auto value = args.get_arg_named("x")->as<PyInt>()->value;
     if (base != 10) {
-        TB.raise("NotImplementedError: base != 10 is not implemented", "NotImplementedError");
+        TB.raise("base != 10 is not implemented", "NotImplementedError");
     }
-    return std::make_shared<PyInt>(value);
+    return helpers::new_int(value);
 }
 
 PyObjectPtr BuiltinTypes::__none__(const ParsedFunctionArguments& args)
 {
     return GI.get("none");
+}
+
+PyObjectPtr BuiltinTypes::__list__(const ParsedFunctionArguments& args)
+{
+    return helpers::new_list();
 }

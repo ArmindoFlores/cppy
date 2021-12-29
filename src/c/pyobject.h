@@ -19,16 +19,20 @@ namespace cppy {
         virtual bool hasattr(const std::string& name) const;
         
         template<typename T>
-        T& as()
+        T* as()
         {
-            return *dynamic_cast<T*>(this);
+            return dynamic_cast<T*>(this);
         }
+
+        virtual bool gccollected();
+        virtual std::vector<std::weak_ptr<PyObject>> getrefs();
 
     protected:
         std::map<std::string, std::variant<std::shared_ptr<PyObject>, std::function<std::shared_ptr<PyObject>(const PyObject&)>>> attributes;
     };
 
     typedef std::shared_ptr<PyObject> PyObjectPtr;
+    typedef std::weak_ptr<PyObject> PyObjectWPtr;
     typedef std::variant<PyObjectPtr, std::function<PyObjectPtr(const PyObject&)>> PyObjectPtrOrFunc;
 }
 

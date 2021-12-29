@@ -10,6 +10,8 @@ namespace cppy {
     public:
         static PyObjectPtr new_string(const std::string& s);
         static PyObjectPtr new_int(long long x);
+        static PyObjectPtr new_list();
+        static PyObjectPtr new_list(const std::vector<PyObjectPtr>&);
         static PyObjectPtr new_none();
         static PyObjectPtr call(PyObjectPtr callable, FunctionArguments args);
         static PyObjectPtr call_member(const std::string&, PyObjectPtr obj, FunctionArguments args);

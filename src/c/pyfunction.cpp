@@ -101,6 +101,11 @@ PyObjectPtr ParsedFunctionArguments::get_arg_named(const std::string& name) cons
     return positional.at(name);
 }
 
+bool ParsedFunctionArguments::has_arg_named(const std::string& name) const
+{
+    return positional.count(name);
+}
+
 const std::vector<PyObjectPtr>& ParsedFunctionArguments::get_args() const
 {
     return args;
@@ -172,12 +177,12 @@ PyObjectPtr PyFunction::call(const FunctionArguments &args)
     switch (parse_result.type) {
         case ParseResultType::UNEXPECTED_KEYWORD: {
             TB.raise(
-                "TypeError: " + function_name + "() got an unexpected keyword argument '" + parse_result.keyword + "'", 
+                function_name + "() got an unexpected keyword argument '" + parse_result.keyword + "'", 
                 "TypeError"
             );
         }
         case ParseResultType::MISSING_POSITIONAL_ARGS: {
-            std::string error_msg = "TypeError: " + function_name + "() missing " + std::to_string(parse_result.missing_args.size()) + " required positional argument";
+            std::string error_msg = function_name + "() missing " + std::to_string(parse_result.missing_args.size()) + " required positional argument";
             if (parse_result.missing_args.size() != 1)
                 error_msg += "s";
             error_msg += ": ";
@@ -198,7 +203,7 @@ PyObjectPtr PyFunction::call(const FunctionArguments &args)
         }
         case ParseResultType::TOO_MANY_POSITIONAL_ARGS: {
             TB.raise(
-                "TypeError: " + function_name + "() takes " + std::to_string(parse_result.needed_given.first) + " positional arguments but " + std::to_string(parse_result.needed_given.second) + " were given",
+                function_name + "() takes " + std::to_string(parse_result.needed_given.first) + " positional arguments but " + std::to_string(parse_result.needed_given.second) + " were given",
                 "TypeError"
             );
         }

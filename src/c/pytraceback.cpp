@@ -36,7 +36,7 @@ void Traceback::raise(const std::string& msg, const std::string& signature)
     if (tb.empty())
         throw std::bad_exception();
 
-    std::string message = create_message(msg);
+    std::string message = create_message(signature + ": " + msg);
 
     while (!tb.empty() && tb.back() != signature) {
         tb.pop_back();

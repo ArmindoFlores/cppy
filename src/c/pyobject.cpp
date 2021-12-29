@@ -16,7 +16,7 @@ PyObjectPtr __repr__(const ParsedFunctionArguments& args)
 
 PyObjectPtr __str__(const ParsedFunctionArguments& args)
 {
-    return __repr__(args);
+    return helpers::call_member("__repr__", args.get_arg_named("self"), FunctionArguments({}));
 }
 
 static PyObjectPtr object__repr__ = std::make_shared<PyFunction>(
@@ -33,10 +33,20 @@ PyObject::PyObject()
     attributes["__str__"] = object__str__;
 }
 
+bool PyObject::gccollected()
+{
+    return false;
+}
+
+std::vector<PyObjectWPtr> PyObject::getrefs()
+{
+    return std::vector<PyObjectWPtr>();
+}
+
 PyObjectPtr PyObject::getattr(const std::string& name) const
 {
     if (!hasattr(name))
-        TB.raise("AttributeError: X object has no attribute '" + name + "'", "AttributeError");
+        TB.raise("X object has no attribute '" + name + "'", "AttributeError");
 
     auto &attr = attributes.at(name);
 

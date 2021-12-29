@@ -51,6 +51,7 @@ namespace cppy {
         ParseResult parse(const FunctionArguments&);
 
         PyObjectPtr get_arg_named(const std::string& name) const;
+        bool has_arg_named(const std::string& name) const;
         const std::vector<PyObjectPtr>& get_args() const;
         const std::map<std::string, PyObjectPtr>& get_kwargs() const;
         const FunctionArguments& as_function_args() const;

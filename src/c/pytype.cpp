@@ -14,12 +14,12 @@ PyType::PyType(const std::string& name, PyObjectPtr constructor) : name(name), c
 
 PyObjectPtr PyType::__call__(const ParsedFunctionArguments& args)
 {
-    auto constructor = args.get_arg_named("self")->as<PyType>().constructor;
+    auto constructor = args.get_arg_named("self")->as<PyType>()->constructor;
     return helpers::call(constructor, args.as_function_args());
 }
 
 PyObjectPtr PyType::__str__(const ParsedFunctionArguments& args)
 {
-    std::string name = args.get_arg_named("self")->as<PyType>().name;
+    std::string name = args.get_arg_named("self")->as<PyType>()->name;
     return helpers::new_string("<class '" + name + "'>");
 }

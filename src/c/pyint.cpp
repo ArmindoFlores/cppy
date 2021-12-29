@@ -22,7 +22,7 @@ PyObjectPtr PyInt::__str__(const ParsedFunctionArguments &args)
 
 PyObjectPtr PyInt::__repr__(const ParsedFunctionArguments &args)
 {
-    return std::make_shared<PyString>(std::to_string(args.get_arg_named("self")->as<PyInt>().value));
+    return std::make_shared<PyString>(std::to_string(args.get_arg_named("self")->as<PyInt>()->value));
 }
 
 PyObjectPtr PyInt::__class__(const PyObject&)
