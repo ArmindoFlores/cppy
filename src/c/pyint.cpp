@@ -8,6 +8,8 @@ PyInt::PyInt()
 {
     setattr("__add__", std::make_shared<PyFunction>(__add__, "__add__", std::vector<std::string>({"self", "other"})));
     setattr("__radd__", std::make_shared<PyFunction>(__radd__, "__radd__", std::vector<std::string>({"self", "other"})));
+    setattr("__sub__", std::make_shared<PyFunction>(__sub__, "__sub__", std::vector<std::string>({"self", "other"})));
+    setattr("__rsub__", std::make_shared<PyFunction>(__rsub__, "__rsub__", std::vector<std::string>({"self", "other"})));
     setattr("__str__", std::make_shared<PyFunction>(__str__, "__str__", std::vector<std::string>({"self"})));
     setattr("__repr__", std::make_shared<PyFunction>(__repr__, "__repr__", std::vector<std::string>({"self"})));
     setattr("__class__", __class__);
@@ -60,3 +62,32 @@ PyObjectPtr PyInt::__radd__(const ParsedFunctionArguments &args)
     // FIXME: return NotImplemented
     return helpers::new_none();
 }
+
+PyObjectPtr PyInt::__sub__(const ParsedFunctionArguments &args)
+{
+    auto self = args.get_arg_named("self")->as<PyInt>();
+    auto other = args.get_arg_named("other");
+
+    // FIXME: use isinstance()
+    if (other->getattr("__class__") == BT.get_type_named("int")) {
+        return helpers::new_int(self->value - other->as<PyInt>()->value);
+    }
+
+    // FIXME: return NotImplemented
+    return helpers::new_none();
+}
+
+PyObjectPtr PyInt::__rsub__(const ParsedFunctionArguments &args)
+{
+    auto self = args.get_arg_named("self")->as<PyInt>();
+    auto other = args.get_arg_named("other");
+
+    // FIXME: use isinstance()
+    if (other->getattr("__class__") == BT.get_type_named("int")) {
+        return helpers::new_int(other->as<PyInt>()->value - self->value);
+    }
+
+    // FIXME: return NotImplemented
+    return helpers::new_none();
+}
+
