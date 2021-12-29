@@ -15,6 +15,11 @@ namespace cppy {
             std::size_t collect();
             void add_container(PyObjectWPtr);
             void add_container(PyObjectPtr);
+            std::size_t get_count() const;
+            bool is_tracked(PyObjectPtr) const;
+            bool isenabled() const;
+            void enable();
+            void disable();
 
         private:
             GarbageCollector();
@@ -22,6 +27,7 @@ namespace cppy {
 
         protected:
             std::set<PyObjectPtr> containers;
+            bool enabled;
         };
     }
 }

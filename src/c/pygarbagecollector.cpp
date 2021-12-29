@@ -5,7 +5,7 @@ using namespace cppy::global;
 
 std::shared_ptr<GarbageCollector> GarbageCollector::instance = nullptr;
 
-GarbageCollector::GarbageCollector() 
+GarbageCollector::GarbageCollector() : enabled(true)
 {
 }
 
@@ -29,6 +29,8 @@ void GarbageCollector::add_container(PyObjectPtr ptr)
 
 std::size_t GarbageCollector::collect()
 {
+    if (!enabled)
+        return 0;
     std::map<PyObjectPtr, std::pair<std::size_t, bool>> to_scan;
     std::set<PyObjectPtr> dropped;
 
@@ -83,4 +85,29 @@ std::size_t GarbageCollector::collect()
         containers.erase(d);
 
     return deleted;
+}
+
+std::size_t GarbageCollector::get_count() const
+{
+    return containers.size();
+}
+
+bool GarbageCollector::is_tracked(PyObjectPtr ptr) const
+{
+    return containers.count(ptr);
+}
+
+bool GarbageCollector::isenabled() const
+{
+    return enabled;
+}
+
+void GarbageCollector::enable()
+{
+    enabled = true;
+}
+
+void GarbageCollector::disable()
+{
+    enabled = false;
 }
