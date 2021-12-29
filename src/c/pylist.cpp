@@ -104,13 +104,9 @@ PyObjectPtr PyList::pop(const ParsedFunctionArguments& args)
         TB.raise("list index out of range", "IndexError");
     }
 
-    // FIXME: this does not preserve the order of elements
-    if (index != self->internal.size()-1) {
-        std::swap(self->internal[index], self->internal.back());
-    }
+    auto result = self->internal[index];
 
-    auto result = self->internal.back();
-    self->internal.pop_back();
+    self->internal.erase(self->internal.begin() + index);
 
     if (std::holds_alternative<PyObjectPtr>(result))
         return std::get<PyObjectPtr>(result);
