@@ -100,9 +100,13 @@ PyObjectPtr PyList::pop(const ParsedFunctionArguments& args)
     auto index_obj = args.get_arg_named("i")->as<PyInt>();
     long long index = index_obj->value >= 0 ? index_obj->value : self->internal.size() + index_obj->value;
 
-    // FIXME: allow for pop to operate on any element
+    if (index >= self->internal.size() || index < 0) {
+        TB.raise("list index out of range", "IndexError");
+    }
+
+    // FIXME: this does not preserve the order of elements
     if (index != self->internal.size()-1) {
-        TB.raise("index != -1", "NotImplementedError");
+        std::swap(self->internal[index], self->internal.back());
     }
 
     auto result = self->internal.back();
