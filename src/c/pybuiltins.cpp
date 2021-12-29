@@ -29,6 +29,15 @@ BuiltinFunctions::BuiltinFunctions()
         "id",
         std::vector<std::string>({"obj"})
     );
+
+    // <built-in function input>
+    functions["input"] = std::make_shared<PyFunction>(
+        __input__,
+        "input",
+        std::vector<std::string>({"prompt"}),
+        std::vector<PyObjectPtr>({helpers::new_none()}),
+        0
+    );
 }
 
 BuiltinFunctions &BuiltinFunctions::the()
@@ -64,8 +73,20 @@ PyObjectPtr BuiltinFunctions::__print__(const ParsedFunctionArguments& args)
     PyString *end_string = dynamic_cast<PyString*>(result.get());
     if (end_string == nullptr) TB.raise("__str__() must return a string", "TypeError");
 
-    std::cout << end_string->internal;
+    std::cout << end_string->internal << std::flush;
     return helpers::new_none();
+}
+
+PyObjectPtr BuiltinFunctions::__input__(const ParsedFunctionArguments& args)
+{
+    auto prompt = args.get_arg_named("prompt");
+    helpers::call(
+        BF.get_function_named("print"), 
+        FunctionArguments({prompt, {helpers::new_string(""), "end"}})
+    );
+    std::string result;
+    std::cin >> result;
+    return helpers::new_string(result);
 }
 
 PyObjectPtr BuiltinFunctions::__id__(const ParsedFunctionArguments& args)

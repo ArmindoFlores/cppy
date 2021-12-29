@@ -22,6 +22,7 @@ namespace cppy {
             BuiltinFunctions();
 
             static PyObjectPtr __print__(const ParsedFunctionArguments& obj);
+            static PyObjectPtr __input__(const ParsedFunctionArguments& obj);
             static PyObjectPtr __repr__(const ParsedFunctionArguments& obj);
             static PyObjectPtr __id__(const ParsedFunctionArguments& obj);
             static PyObjectPtr __dir__(const ParsedFunctionArguments& obj);
