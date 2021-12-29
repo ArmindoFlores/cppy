@@ -45,8 +45,7 @@ PyObjectPtr PyInt::__add__(const ParsedFunctionArguments &args)
         return helpers::new_int(self->value + other->as<PyInt>()->value);
     }
 
-    // FIXME: return NotImplemented
-    return helpers::new_none();
+    return helpers::new_notimpl();
 }
 
 PyObjectPtr PyInt::__radd__(const ParsedFunctionArguments &args)
@@ -59,8 +58,7 @@ PyObjectPtr PyInt::__radd__(const ParsedFunctionArguments &args)
         return helpers::new_int(other->as<PyInt>()->value + self->value);
     }
 
-    // FIXME: return NotImplemented
-    return helpers::new_none();
+    return helpers::new_notimpl();
 }
 
 PyObjectPtr PyInt::__sub__(const ParsedFunctionArguments &args)
@@ -73,8 +71,7 @@ PyObjectPtr PyInt::__sub__(const ParsedFunctionArguments &args)
         return helpers::new_int(self->value - other->as<PyInt>()->value);
     }
 
-    // FIXME: return NotImplemented
-    return helpers::new_none();
+    return helpers::new_notimpl();
 }
 
 PyObjectPtr PyInt::__rsub__(const ParsedFunctionArguments &args)
@@ -87,7 +84,6 @@ PyObjectPtr PyInt::__rsub__(const ParsedFunctionArguments &args)
         return helpers::new_int(other->as<PyInt>()->value - self->value);
     }
 
-    // FIXME: return NotImplemented
-    return helpers::new_none();
+    return helpers::new_notimpl();
 }
 

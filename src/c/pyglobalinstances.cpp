@@ -1,5 +1,6 @@
 #include "pyglobalinstances.h"
 #include "pynone.h"
+#include "pynotimplemented.h"
 using namespace cppy;
 using namespace cppy::global;
 
@@ -8,6 +9,7 @@ std::shared_ptr<GlobalInstances> GlobalInstances::instance = nullptr;
 GlobalInstances::GlobalInstances() 
 {
     instances["none"] = std::make_shared<PyNone>();
+    instances["notimpl"] = std::make_shared<PyNotImplemented>();
 }
 
 GlobalInstances &GlobalInstances::the()

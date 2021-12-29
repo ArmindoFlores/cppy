@@ -24,6 +24,13 @@ PyObjectPtr helpers::new_none()
     return GI.get("none");
 }
 
+PyObjectPtr helpers::new_notimpl()
+{
+    // Note: this doesn't actually create a new object
+    return GI.get("notimpl");
+}
+
+
 PyObjectPtr helpers::new_list()
 {
     PyObjectPtr l = std::make_shared<PyList>();

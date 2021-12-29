@@ -22,6 +22,15 @@ BuiltinTypes::BuiltinTypes()
         )
     );
 
+    // <class 'NotImplemented'>
+    types["notimpl"] = std::make_shared<PyType>(
+        "NotImplemented",
+        std::make_shared<PyFunction>(
+            __none__,
+            "none"
+        )
+    );
+
     // <class 'str'>
     types["str"] = std::make_shared<PyType>(
         "str",
@@ -91,6 +100,11 @@ PyObjectPtr BuiltinTypes::__int__(const ParsedFunctionArguments& args)
 PyObjectPtr BuiltinTypes::__none__(const ParsedFunctionArguments& args)
 {
     return GI.get("none");
+}
+
+PyObjectPtr BuiltinTypes::__notimpl__(const ParsedFunctionArguments& args)
+{
+    return GI.get("notimpl");
 }
 
 PyObjectPtr BuiltinTypes::__list__(const ParsedFunctionArguments& args)

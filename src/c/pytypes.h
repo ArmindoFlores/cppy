@@ -27,6 +27,7 @@ namespace cppy {
             static PyObjectPtr __int__(const ParsedFunctionArguments&);
             static PyObjectPtr __none__(const ParsedFunctionArguments&);
             static PyObjectPtr __list__(const ParsedFunctionArguments&);
+            static PyObjectPtr __notimpl__(const ParsedFunctionArguments&);
         };
     }
 }
