@@ -72,16 +72,25 @@ PyObjectPtr helpers::call_member(const std::string& name, PyObjectPtr obj, Funct
     return call(obj->getattr(name), new_args);
 }
 
+bool helpers::is(PyObjectPtr obj1, PyObjectPtr obj2)
+{
+    return obj1 == obj2;
+}
+
 PyObjectPtr helpers::add(PyObjectPtr left, PyObjectPtr right)
 {
     if (left->hasattr("__add__")) {
         PyObjectPtr result = call_member("__add__", left, FunctionArguments({right}));
-        //FIXME: Check if result is NotImplemented, and if so raise error
+        if (is(result, helpers::new_notimpl())) {
+            TB.raise("unsupported operand type(s) for +: 'X' and 'X'", "TypeError");
+        }
         return result;
     }
     if (right->hasattr("__radd__")) {
         PyObjectPtr result = call_member("__radd__", right, FunctionArguments({left}));
-        //FIXME: Check if result is NotImplemented, and if so raise error
+        if (is(result, helpers::new_notimpl())) {
+            TB.raise("unsupported operand type(s) for +: 'X' and 'X'", "TypeError");
+        }
         return result;
     }
     TB.raise("unsupported operand type(s) for +: 'X' and 'X'", "TypeError");
@@ -93,12 +102,16 @@ PyObjectPtr helpers::sub(PyObjectPtr left, PyObjectPtr right)
 {
     if (left->hasattr("__sub__")) {
         PyObjectPtr result = call_member("__sub__", left, FunctionArguments({right}));
-        //FIXME: Check if result is NotImplemented, and if so raise error
+        if (is(result, helpers::new_notimpl())) {
+            TB.raise("unsupported operand type(s) for +: 'X' and 'X'", "TypeError");
+        }
         return result;
     }
     if (right->hasattr("__rsub__")) {
         PyObjectPtr result = call_member("__rsub__", right, FunctionArguments({left}));
-        //FIXME: Check if result is NotImplemented, and if so raise error
+        if (is(result, helpers::new_notimpl())) {
+            TB.raise("unsupported operand type(s) for +: 'X' and 'X'", "TypeError");
+        }
         return result;
     }
     TB.raise("unsupported operand type(s) for -: 'X' and 'X'", "TypeError");
