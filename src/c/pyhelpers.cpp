@@ -81,10 +81,9 @@ PyObjectPtr helpers::add(PyObjectPtr left, PyObjectPtr right)
 {
     if (left->hasattr("__add__")) {
         PyObjectPtr result = call_member("__add__", left, FunctionArguments({right}));
-        if (is(result, helpers::new_notimpl())) {
-            TB.raise("unsupported operand type(s) for +: 'X' and 'X'", "TypeError");
+        if (!is(result, helpers::new_notimpl())) {
+            return result;
         }
-        return result;
     }
     if (right->hasattr("__radd__")) {
         PyObjectPtr result = call_member("__radd__", right, FunctionArguments({left}));
@@ -102,10 +101,9 @@ PyObjectPtr helpers::sub(PyObjectPtr left, PyObjectPtr right)
 {
     if (left->hasattr("__sub__")) {
         PyObjectPtr result = call_member("__sub__", left, FunctionArguments({right}));
-        if (is(result, helpers::new_notimpl())) {
-            TB.raise("unsupported operand type(s) for +: 'X' and 'X'", "TypeError");
+        if (!is(result, helpers::new_notimpl())) {
+            return result;
         }
-        return result;
     }
     if (right->hasattr("__rsub__")) {
         PyObjectPtr result = call_member("__rsub__", right, FunctionArguments({left}));
