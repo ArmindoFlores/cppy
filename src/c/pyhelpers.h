@@ -15,6 +15,14 @@ namespace cppy {
         static PyObjectPtr new_none();
         static PyObjectPtr call(PyObjectPtr callable, FunctionArguments args);
         static PyObjectPtr call_member(const std::string&, PyObjectPtr obj, FunctionArguments args);
+        
+        static PyObjectPtr add(PyObjectPtr, PyObjectPtr);
+        static PyObjectPtr sub(PyObjectPtr, PyObjectPtr);
+        static PyObjectPtr mul(PyObjectPtr, PyObjectPtr);
+        static PyObjectPtr divmod(PyObjectPtr, PyObjectPtr);
+        static PyObjectPtr truediv(PyObjectPtr, PyObjectPtr);
+        static PyObjectPtr ceil(PyObjectPtr, PyObjectPtr);
+        static PyObjectPtr floor(PyObjectPtr, PyObjectPtr);
     };
 }
 

@@ -64,3 +64,37 @@ PyObjectPtr helpers::call_member(const std::string& name, PyObjectPtr obj, Funct
     std::copy(args.begin(), args.end(), new_args.begin()+1);
     return call(obj->getattr(name), new_args);
 }
+
+PyObjectPtr helpers::add(PyObjectPtr left, PyObjectPtr right)
+{
+    if (left->hasattr("__add__")) {
+        PyObjectPtr result = call_member("__add__", left, FunctionArguments({right}));
+        //FIXME: Check if result is NotImplemented, and if so raise error
+        return result;
+    }
+    if (right->hasattr("__radd__")) {
+        PyObjectPtr result = call_member("__radd__", right, FunctionArguments({left}));
+        //FIXME: Check if result is NotImplemented, and if so raise error
+        return result;
+    }
+    TB.raise("unsupported operand type(s) for +: 'X' and 'X'", "TypeError");
+    // This should never be reached
+    return helpers::new_none();
+}
+
+PyObjectPtr helpers::sub(PyObjectPtr left, PyObjectPtr right)
+{
+    if (left->hasattr("__sub__")) {
+        PyObjectPtr result = call_member("__sub__", left, FunctionArguments({right}));
+        //FIXME: Check if result is NotImplemented, and if so raise error
+        return result;
+    }
+    if (right->hasattr("__rsub__")) {
+        PyObjectPtr result = call_member("__rsub__", right, FunctionArguments({left}));
+        //FIXME: Check if result is NotImplemented, and if so raise error
+        return result;
+    }
+    TB.raise("unsupported operand type(s) for -: 'X' and 'X'", "TypeError");
+    // This should never be reached
+    return helpers::new_none();
+}
