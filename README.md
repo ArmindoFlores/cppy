@@ -42,7 +42,7 @@ int main()
 ```
 
 ## Python Grammar
-The Python grammar file (`src/transpiler/Python3.g4`) was written by Bart Kiers. [Here](ttps://github.com/bkiers/python3-parser) is a link to their project.
+The Python grammar file (`src/transpiler/Python3.g4`) was written by Bart Kiers. [Here](https://github.com/bkiers/python3-parser) is a link to their project.
 
 ## How to help
 You can help by submitting a pull requested with add fixes or new functionality, or by opening issues regarding bugs that you find. **Please do not open issues about missing features/feature requests.**
