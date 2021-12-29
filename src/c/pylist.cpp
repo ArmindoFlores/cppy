@@ -8,7 +8,6 @@
 #include "pytypes.h"
 using namespace cppy;
 #include <sstream>
-#include <iostream>
 
 PyList::PyList() 
 {
@@ -99,7 +98,7 @@ PyObjectPtr PyList::pop(const ParsedFunctionArguments& args)
 {
     auto self = args.get_arg_named("self")->as<PyList>();
     auto index_obj = args.get_arg_named("i")->as<PyInt>();
-    long long index = index_obj->value >= 0 ? index_obj->value : self->internal.size() - index_obj->value;
+    long long index = index_obj->value >= 0 ? index_obj->value : self->internal.size() + index_obj->value;
 
     // FIXME: allow for pop to operate on any element
     if (index != self->internal.size()-1) {

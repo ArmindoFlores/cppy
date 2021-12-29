@@ -2,7 +2,6 @@
 using namespace cppy;
 using namespace cppy::global;
 #include <map>
-#include <iostream>
 
 std::shared_ptr<GarbageCollector> GarbageCollector::instance = nullptr;
 
@@ -35,16 +34,13 @@ std::size_t GarbageCollector::collect()
 
     // Add objects and reference counts to map and remove freed
     // objects alltogether
-    std::cout << "Beginning garbage collection...\nTracked containers: ";
     for (auto& elem : containers) {
-        std::size_t ref_count = elem.use_count()-1;
-        std::cout << "<" << elem << ", " << ref_count << ">" << ", ";
+        std::size_t ref_count = elem.use_count();
         if (ref_count != 0)
             to_scan[elem] = std::make_pair(ref_count, false);
         else
             dropped.insert(elem);
     }
-    std::cout << std::endl;
 
     // Find tentatively unreachable objects
     for (auto& elem : to_scan) {
@@ -77,7 +73,6 @@ std::size_t GarbageCollector::collect()
     std::size_t deleted = 0;
     for (auto &elem : to_scan) {
         if (elem.second.first == 0) {
-            std::cout << "Collected " << elem.first << std::endl;
             containers.erase(elem.first);
             deleted++;
         }
