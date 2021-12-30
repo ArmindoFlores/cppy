@@ -72,7 +72,7 @@ PyObjectPtr helpers::call_member(const std::string& name, PyObjectPtr obj, Funct
     return call(obj->getattr(name), new_args);
 }
 
-bool helpers::is(PyObjectPtr obj1, PyObjectPtr obj2)
+inline bool helpers::is(PyObjectPtr obj1, PyObjectPtr obj2)
 {
     return obj1 == obj2;
 }

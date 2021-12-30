@@ -16,7 +16,7 @@ namespace cppy {
         static PyObjectPtr new_notimpl();
         static PyObjectPtr call(PyObjectPtr callable, FunctionArguments args);
         static PyObjectPtr call_member(const std::string&, PyObjectPtr obj, FunctionArguments args);
-        static bool is(PyObjectPtr, PyObjectPtr);
+        static inline bool is(PyObjectPtr, PyObjectPtr);
         
         static PyObjectPtr add(PyObjectPtr, PyObjectPtr);
         static PyObjectPtr sub(PyObjectPtr, PyObjectPtr);

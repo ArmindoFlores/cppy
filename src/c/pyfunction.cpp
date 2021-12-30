@@ -2,6 +2,7 @@
 #include "pytraceback.h"
 using namespace cppy;
 #include <algorithm>
+#include <iostream>
 
 FunctionArgument::FunctionArgument(PyObjectPtr obj, const std::string& name) : o(obj), name(name) {}
 

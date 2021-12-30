@@ -9,10 +9,8 @@ namespace cppy {
     public:
         PyType(const std::string& name, PyObjectPtr constructor);
 
-        static PyObjectPtr __call__(const ParsedFunctionArguments&);
-        static PyObjectPtr __str__(const ParsedFunctionArguments&);
+        static PyObjectPtr __call__, __str__;
 
-    private:
         std::string name;
         PyObjectPtr constructor;
     };

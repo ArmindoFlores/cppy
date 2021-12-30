@@ -9,29 +9,7 @@
 using namespace cppy;
 #include <sstream>
 
-PyList::PyList() 
-{
-    setattr("__repr__", std::make_shared<PyFunction>(
-        __repr__,
-        "__repr__",
-        std::vector<std::string>({"self"})
-    ));
-    setattr("__class__", __class__);
-    setattr("append", std::make_shared<PyFunction>(
-        append,
-        "append",
-        std::vector<std::string>({"self", "object"})
-    ));
-    setattr("pop", std::make_shared<PyFunction>(
-        pop,
-        "pop",
-        std::vector<std::string>({"self", "i"}),
-        std::vector<PyObjectPtr>({helpers::new_int(-1)}),
-        1
-    ));
-}
-
-PyObjectPtr PyList::__repr__(const ParsedFunctionArguments& args)
+static PyObjectPtr PyList__repr__(const ParsedFunctionArguments& args)
 {
     auto self = args.get_arg_named("self");
     RC.enter(self.get());
@@ -61,32 +39,12 @@ PyObjectPtr PyList::__repr__(const ParsedFunctionArguments& args)
     return helpers::new_string(ss.str());
 }
 
-PyObjectPtr PyList::__class__(const PyObject&)
-{
-    return BT.get_type_named("list");
-}
-
-std::vector<PyObjectWPtr> PyList::getrefs()
-{
-    std::vector<PyObjectWPtr> refs;
-    for (auto &elem : internal) {
-        if (std::holds_alternative<PyObjectWPtr>(elem))
-            refs.push_back(std::get<PyObjectWPtr>(elem));
-    }
-    return refs;
-}
-
-bool PyList::gccollected()
-{
-    return true;
-}
-
-PyObjectPtr PyList::append(const ParsedFunctionArguments& args)
+static PyObjectPtr PyList_append(const ParsedFunctionArguments& args)
 {    
     auto self = args.get_arg_named("self");
     auto obj = args.get_arg_named("object");
 
-    if (self->gccollected())
+    if (obj->gccollected())
         self->as<PyList>()->internal.push_back(std::weak_ptr(obj));
     else
         self->as<PyList>()->internal.push_back(obj);
@@ -94,7 +52,7 @@ PyObjectPtr PyList::append(const ParsedFunctionArguments& args)
     return helpers::new_none();
 }
 
-PyObjectPtr PyList::pop(const ParsedFunctionArguments& args)
+static PyObjectPtr PyList_pop(const ParsedFunctionArguments& args)
 {
     auto self = args.get_arg_named("self")->as<PyList>();
     auto index_obj = args.get_arg_named("i")->as<PyInt>();
@@ -113,4 +71,52 @@ PyObjectPtr PyList::pop(const ParsedFunctionArguments& args)
     else if (std::holds_alternative<PyObjectWPtr>(result))
         return std::get<PyObjectWPtr>(result).lock();
     return helpers::new_none();
+}
+
+PyObjectPtr PyList::__repr__ = std::make_shared<PyFunction>(
+    PyList__repr__,
+    "__repr__",
+    std::vector<std::string>({"self"})
+);
+
+PyObjectPtr PyList::append = std::make_shared<PyFunction>(
+    PyList_append,
+    "append",
+    std::vector<std::string>({"self", "object"})
+);
+
+PyObjectPtr PyList::pop = std::make_shared<PyFunction>(
+    PyList_pop,
+    "pop",
+    std::vector<std::string>({"self", "i"}),
+    std::vector<PyObjectPtr>({helpers::new_int(-1)}),
+    1
+);
+
+PyObjectPtr PyList::__class__(const PyObject&)
+{
+    return BT.get_type_named("list");
+}
+
+PyList::PyList() 
+{
+    setattr("__repr__", __repr__);
+    setattr("__class__", __class__);
+    setattr("append", append);
+    setattr("pop", pop);
+}
+
+std::vector<PyObjectWPtr> PyList::getrefs()
+{
+    std::vector<PyObjectWPtr> refs;
+    for (auto &elem : internal) {
+        if (std::holds_alternative<PyObjectWPtr>(elem))
+            refs.push_back(std::get<PyObjectWPtr>(elem));
+    }
+    return refs;
+}
+
+bool PyList::gccollected()
+{
+    return true;
 }
