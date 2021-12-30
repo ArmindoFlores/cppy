@@ -28,7 +28,7 @@ namespace cppy {
         virtual std::vector<std::weak_ptr<PyObject>> getrefs();
 
     protected:
-        std::map<std::string, std::variant<std::shared_ptr<PyObject>, std::function<std::shared_ptr<PyObject>(const PyObject&)>>> attributes;
+        std::unordered_map<std::string, std::variant<std::shared_ptr<PyObject>, std::function<std::shared_ptr<PyObject>(const PyObject&)>>> attributes;
     };
 
     typedef std::shared_ptr<PyObject> PyObjectPtr;

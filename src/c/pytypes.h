@@ -19,7 +19,7 @@ namespace cppy {
 
         private:
             static std::shared_ptr<BuiltinTypes> instance;
-            std::map<std::string, PyObjectPtr> types;
+            std::unordered_map<std::string, PyObjectPtr> types;
             
             BuiltinTypes();
 

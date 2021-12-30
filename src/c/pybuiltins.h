@@ -17,7 +17,7 @@ namespace cppy {
 
         private:
             static std::shared_ptr<BuiltinFunctions> instance;
-            std::map<std::string, PyObjectPtr> functions;
+            std::unordered_map<std::string, PyObjectPtr> functions;
             
             BuiltinFunctions();
 

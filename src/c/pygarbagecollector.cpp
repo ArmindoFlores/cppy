@@ -32,7 +32,7 @@ std::size_t GarbageCollector::collect()
     //! This code is based on CPython's implementation, but is really Q&D
     if (!enabled)
         return 0;
-    std::map<PyObjectPtr, std::pair<std::size_t, bool>> to_scan;
+    std::unordered_map<PyObjectPtr, std::pair<std::size_t, bool>> to_scan;
     std::set<PyObjectPtr> dropped;
 
     // Add objects and reference counts to map and remove freed
