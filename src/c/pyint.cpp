@@ -15,6 +15,11 @@ static PyObjectPtr PyInt__str__(const ParsedFunctionArguments &args)
     return PyInt__repr__(args);
 }
 
+static PyObjectPtr PyInt__hash__(const ParsedFunctionArguments &args)
+{
+    return args.get_arg_named("self");
+}
+
 static PyObjectPtr PyInt__add__(const ParsedFunctionArguments &args)
 {
     auto self = args.get_arg_named("self")->as<PyInt>();
@@ -67,6 +72,7 @@ static PyObjectPtr PyInt__rsub__(const ParsedFunctionArguments &args)
     return helpers::new_notimpl();
 }
 
+PyObjectPtr PyInt::__hash__ = std::make_shared<PyFunction>(PyInt__hash__, "__hash__", std::vector<std::string>({"self"}));
 PyObjectPtr PyInt::__add__ = std::make_shared<PyFunction>(PyInt__add__, "__add__", std::vector<std::string>({"self", "other"}));
 PyObjectPtr PyInt::__radd__ = std::make_shared<PyFunction>(PyInt__radd__, "__radd__", std::vector<std::string>({"self", "other"}));
 PyObjectPtr PyInt::__sub__ = std::make_shared<PyFunction>(PyInt__sub__, "__sub__", std::vector<std::string>({"self", "other"}));
@@ -81,6 +87,7 @@ PyObjectPtr PyInt::__class__(const PyObject&)
 
 PyInt::PyInt()
 {
+    setattr("__hash__", __hash__);
     setattr("__add__", __add__);
     setattr("__radd__", __radd__);
     setattr("__sub__", __sub__);

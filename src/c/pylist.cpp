@@ -98,10 +98,16 @@ PyObjectPtr PyList::__class__(const PyObject&)
     return BT.get_type_named("list");
 }
 
+PyObjectPtr PyList::__hash__(const PyObject&)
+{
+    return helpers::new_none();
+}
+
 PyList::PyList() 
 {
     setattr("__repr__", __repr__);
     setattr("__class__", __class__);
+    setattr("__hash__", __hash__);
     setattr("append", append);
     setattr("pop", pop);
 }

@@ -3,6 +3,7 @@
 #include "pyint.h"
 #include "pygarbagecollector.h"
 #include "pylist.h"
+#include "pydict.h"
 #include "pyfunction.h"
 #include "pytraceback.h"
 #include "pyglobalinstances.h"
@@ -36,6 +37,13 @@ PyObjectPtr helpers::new_list()
     PyObjectPtr l = std::make_shared<PyList>();
     GC.add_container(l);
     return l;
+}
+
+PyObjectPtr helpers::new_dict()
+{
+    PyObjectPtr d = std::make_shared<PyDict>();
+    GC.add_container(d);
+    return d;
 }
 
 PyObjectPtr helpers::new_list(const std::vector<PyObjectPtr>& objs)

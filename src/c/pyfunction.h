@@ -21,7 +21,18 @@ namespace cppy {
         std::string name;
     };
 
-    typedef std::vector<FunctionArgument> FunctionArguments;
+    class FunctionArguments : public std::vector<FunctionArgument> {
+    public:
+        using std::vector<FunctionArgument>::vector;
+        void parse(
+            const std::string& scope,
+            const std::vector<std::string>& param_names,
+            const std::vector<PyObjectPtr> defaults,
+            std::size_t defaults_offset,
+            std::size_t star_pos = -1,
+            bool dstar = false
+        ) const;
+    };
 
     enum class ParseResultType {
         SUCCESS,

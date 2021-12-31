@@ -63,6 +63,15 @@ BuiltinTypes::BuiltinTypes()
             "list"
         )
     );
+
+    // <class 'dict'>
+    types["dict"] = std::make_shared<PyType>(
+        "dict",
+        std::make_shared<PyFunction>(
+            __dict__,
+            "dict"
+        )
+    );
 }
 
 BuiltinTypes &BuiltinTypes::the()
@@ -110,4 +119,9 @@ PyObjectPtr BuiltinTypes::__notimpl__(const ParsedFunctionArguments& args)
 PyObjectPtr BuiltinTypes::__list__(const ParsedFunctionArguments& args)
 {
     return helpers::new_list();
+}
+
+PyObjectPtr BuiltinTypes::__dict__(const ParsedFunctionArguments& args)
+{
+    return helpers::new_dict();
 }

@@ -34,6 +34,7 @@ namespace cppy {
     typedef std::shared_ptr<PyObject> PyObjectPtr;
     typedef std::weak_ptr<PyObject> PyObjectWPtr;
     typedef std::variant<PyObjectPtr, std::function<PyObjectPtr(const PyObject&)>> PyObjectPtrOrFunc;
+    typedef std::variant<PyObjectPtr, PyObjectWPtr> PyObjectAnyPtr;
 }
 
 #endif
