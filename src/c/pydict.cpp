@@ -115,28 +115,39 @@ static PyObjectPtr PyDict__setitem__(const ParsedFunctionArguments& args)
     }
 
     if (value->gccollected()) {
-        std::cout << "Value is garbage collected" << std::endl;
-        if (key->gccollected()) {
-            std::cout << "Key is garbage collected" << std::endl;
+        if (key->gccollected())
             self->as<PyDict>()->internal[std::weak_ptr(key)] = std::weak_ptr(value);
-        }
-        else {
-            std::cout << "Key is not garbage collected" << std::endl;
+        else
             self->as<PyDict>()->internal[key] = std::weak_ptr(value);
-        }
     }
     else {
-        std::cout << "Value is not garbage collected" << std::endl;
-        if (key->gccollected()) {
-            std::cout << "Key is garbage collected" << std::endl;
+        if (key->gccollected())
             self->as<PyDict>()->internal[std::weak_ptr(key)] = value;
-        }
-        else {
-            std::cout << "Key is not garbage collected" << std::endl;
+        else
             self->as<PyDict>()->internal[key] = value;
-        }
     }
     
+    return helpers::new_none();
+}
+
+static PyObjectPtr PyDict__delitem__(const ParsedFunctionArguments& args)
+{
+    auto self = args.get_arg_named("self");
+    auto key = args.get_arg_named("key");
+
+    if (!key->hasattr("__hash__") || helpers::is(key->getattr("__hash__"), helpers::new_none())) {
+        auto cls = key->getattr("__class__");
+        std::string t = cls->getattr("__name__")->as<PyString>()->internal;
+        TB.raise("unhashable type: '" + t + "'", "TypeError");
+    }
+    
+    if (!self->as<PyDict>()->internal.count(key)) {
+        std::string r = helpers::call_member("__repr__", key, FunctionArguments({}))->as<PyString>()->internal;
+        TB.raise(r, "KeyError");
+    }
+
+    self->as<PyDict>()->internal.erase(key);
+
     return helpers::new_none();
 }
 
@@ -144,6 +155,12 @@ PyObjectPtr PyDict::__repr__ = std::make_shared<PyFunction>(
     PyDict__repr__,
     "__repr__",
     std::vector<std::string>({"self"})
+);
+
+PyObjectPtr PyDict::__delitem__ = std::make_shared<PyFunction>(
+    PyDict__delitem__,
+    "__delitem__",
+    std::vector<std::string>({"self", "key"})
 );
 
 PyObjectPtr PyDict::__getitem__ = std::make_shared<PyFunction>(
@@ -166,6 +183,7 @@ PyObjectPtr PyDict::__class__(const PyObject&)
 PyDict::PyDict()
 {
     setattr("__repr__", __repr__);
+    setattr("__delitem__", __delitem__);
     setattr("__getitem__", __getitem__);
     setattr("__setitem__", __setitem__);
     setattr("__class__", __class__);
