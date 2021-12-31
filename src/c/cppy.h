@@ -11,6 +11,7 @@
 #include "pynone.h"
 #include "pyobject.h"
 #include "pyrecursionctx.h"
+#include "pyscope.h"
 #include "pystring.h"
 #include "pytraceback.h"
 #include "pytype.h"
