@@ -16,6 +16,8 @@ namespace cppy {
             std::map<std::string, PyObjectPtr>& get_scope(const std::string& name);
             PyObjectPtr get_var(const std::string& var, const std::string& scope) const;
             void set_var(const std::string& var, const std::string& scope, PyObjectPtr value);
+            void del_var(const std::string& var, const std::string& scope);
+            void del_scope(const std::string& scope);
 
         private:
             static std::shared_ptr<Scope> instance;

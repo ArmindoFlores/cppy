@@ -55,3 +55,20 @@ void Scope::set_var(const std::string& var, const std::string& scope, PyObjectPt
 {
     scopes[scope][var] = value;
 }
+
+void Scope::del_var(const std::string& var, const std::string& scope)
+{
+    if (!scopes.count(scope) || !scopes.at(scope).count(var)) {
+        // FIXME: actually check if the variable is markedd global
+        if (scope != "")
+            TB.raise("name '" + var + "' is not defined", "NameError");
+        else
+            TB.raise("local variable '" + var + "' referenced before assignment", "UnboundLocalError");
+    }
+    scopes.at(scope).erase(var);
+}
+
+void Scope::del_scope(const std::string& scope)
+{
+    scopes.erase(scope);
+}
