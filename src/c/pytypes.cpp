@@ -13,6 +13,15 @@ std::shared_ptr<BuiltinTypes> BuiltinTypes::instance = nullptr;
 
 BuiltinTypes::BuiltinTypes()
 {
+    // <class 'type'>
+    types["type"] = std::make_shared<PyType>(
+        "type",
+        std::make_shared<PyFunction>(
+            __type__,
+            "type"
+        )
+    );
+
     // <class 'NoneType'>
     types["none"] = std::make_shared<PyType>(
         "NoneType",
@@ -85,6 +94,11 @@ BuiltinTypes &BuiltinTypes::the()
 PyObjectPtr BuiltinTypes::get_type_named(const std::string& name) const
 {
     return types.at(name);
+}
+
+PyObjectPtr BuiltinTypes::__type__(const ParsedFunctionArguments& args)
+{
+    return helpers::new_none();
 }
 
 PyObjectPtr BuiltinTypes::__str__(const ParsedFunctionArguments& args)

@@ -36,11 +36,17 @@ static PyObjectPtr object__hash__ = std::make_shared<PyFunction>(
     __hash__, "__hash__", std::vector<std::string>({"self"})
 );
 
+static PyObjectPtr object__bases__(const PyObject&)
+{
+    return helpers::new_list();
+}
+
 PyObject::PyObject()
 {
     attributes["__repr__"] = object__repr__;
     attributes["__str__"] = object__str__;
     attributes["__hash__"] = object__hash__;
+    attributes["__bases__"] = object__bases__;
 }
 
 bool PyObject::gccollected()
