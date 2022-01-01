@@ -12,7 +12,7 @@ namespace cppy {
         static PyObjectPtr __class__(const PyObject&);
         static PyObjectPtr __mro__(const PyObject&);
         static PyObjectPtr __name__(const PyObject&);
-        static PyObjectPtr __call__, __repr__;
+        static PyObjectPtr __call__, __init__, __repr__;
         static PyObjectPtr mro;
 
         std::string name;
