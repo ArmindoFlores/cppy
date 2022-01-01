@@ -104,10 +104,11 @@ namespace cppy {
 
         PyObjectPtr call(const FunctionArguments&);
         static PyObjectPtr call_wrapper(const PyObject&);
+        static PyObjectPtr __repr__;
+        std::string function_name;
 
     private:
         std::function<PyObjectPtr(const ParsedFunctionArguments&)> internal;
-        std::string function_name;
         std::vector<std::string> param_names;
         std::vector<PyObjectPtr> defaults;
         std::size_t defaults_offset, star_pos;

@@ -1,8 +1,10 @@
 #include "pyfunction.h"
 #include "pytraceback.h"
+#include "pyhelpers.h"
 using namespace cppy;
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 
 FunctionArgument::FunctionArgument(PyObjectPtr obj, const std::string& name) : o(obj), name(name) {}
 
@@ -122,6 +124,21 @@ const FunctionArguments& ParsedFunctionArguments::as_function_args() const
     return unparsed_args;
 }
 
+static PyObjectPtr PyFunction__repr__(const ParsedFunctionArguments& args)
+{
+    auto memory_location = args.get_arg_named("self").get();
+    std::stringstream ss;
+    ss << "<function " << args.get_arg_named("self")->as<PyFunction>()->function_name;
+    ss << " at " << static_cast<const void*>(memory_location) << ">";
+    return helpers::new_string(ss.str());
+}
+
+PyObjectPtr PyFunction::__repr__ = std::make_shared<PyFunction>(
+    PyFunction__repr__,
+    "__repr__",
+    std::vector<std::string>({"self"})
+);
+
 PyFunction::PyFunction(
     PyInternalFunc f, 
     const std::string& fn
@@ -146,6 +163,7 @@ PyFunction::PyFunction(
 ) : internal(f), function_name(fn), param_names(param_names), defaults(defaults), defaults_offset(defaults_offset), star_pos(star_pos), dstar(dstar) 
 {
     setattr("__call__", call_wrapper);
+    setattr("__repr__", __repr__);
 }
 
 PyObjectPtr PyFunction::call_wrapper(const PyObject& self)
