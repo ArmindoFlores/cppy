@@ -14,7 +14,9 @@ class Visitor(Python3Visitor):
         self._includes: List[str] = []
         
     def getCode(self) -> str:
-        return self._global_scope.get_code(None)
+        header = "#include \"cppy.h\"\n"
+        footer = "\n\nint main()\n{\n\tglobal();\n}\n"
+        return header + self._global_scope.get_code(None) + footer
         
     def visitSmall_stmt(self, ctx):
         if ctx.expr_stmt() is not None:

@@ -24,4 +24,4 @@ def main(filename, outfile):
     
 
 if __name__ == "__main__":
-    main("tests/test.py", "tests/test.cpp")
+    main("../../tests/test.py", "../../tests/test.cpp")
