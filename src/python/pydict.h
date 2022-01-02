@@ -11,12 +11,11 @@ namespace cppy {
         bool operator()(const PyObjectAnyPtr&, const PyObjectAnyPtr&) const;
     };
 
-    class PyDict : public PyObject {
+    class PyDict : public PyGCObject {
     public:
         PyDict();
 
         std::vector<PyObjectWPtr> getrefs() override;
-        bool gccollected() override;
 
         static PyObjectPtr __repr__, __len__, __getitem__, __setitem__, __delitem__;
         static PyObjectPtr __class__(const PyObject&);

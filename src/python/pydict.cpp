@@ -189,11 +189,6 @@ PyDict::PyDict()
     setattr("__class__", __class__);
 }
 
-bool PyDict::gccollected()
-{
-    return true;
-}
-
 std::vector<PyObjectWPtr> PyDict::getrefs()
 {
     std::vector<PyObjectWPtr> gather;

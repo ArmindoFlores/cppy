@@ -10,9 +10,7 @@ namespace cppy {
         PyNone();
         ~PyNone() = default;
 
-        static PyObjectPtr __bool__(const ParsedFunctionArguments&);
-        static PyObjectPtr __repr__(const ParsedFunctionArguments&);
-        static PyObjectPtr __str__(const ParsedFunctionArguments&);
+        static PyObjectPtr __bool__, __repr__, __str__;
         static PyObjectPtr __class__(const PyObject&);
 
     };

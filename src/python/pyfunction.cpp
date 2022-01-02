@@ -150,7 +150,7 @@ PyFunction::PyFunction(
     const std::vector<std::string>& param_names,
     std::size_t star_pos,
     bool dstar
-) : PyFunction(f, fn, param_names, std::vector<PyObjectPtr>(), 0, -1) {}
+) : PyFunction(f, fn, param_names, std::vector<PyObjectPtr>(), 0, star_pos, dstar) {}
 
 PyFunction::PyFunction(
     PyInternalFunc f, 

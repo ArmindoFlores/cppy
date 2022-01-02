@@ -6,12 +6,11 @@
 #include <vector>
 
 namespace cppy {
-    class PyList : public PyObject {
+    class PyList : public PyGCObject {
     public:
         PyList();
 
         std::vector<PyObjectWPtr> getrefs() override;
-        bool gccollected() override;
 
         static PyObjectPtr __class__(const PyObject&);
         static PyObjectPtr __hash__(const PyObject&);

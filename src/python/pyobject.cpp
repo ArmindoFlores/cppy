@@ -24,6 +24,11 @@ PyObjectPtr __hash__(const ParsedFunctionArguments& args)
     return helpers::new_int(reinterpret_cast<std::intptr_t>(args.get_arg_named("self").get()));
 }
 
+PyObjectPtr __init__(const ParsedFunctionArguments& args)
+{
+    return helpers::new_none();
+}
+
 static PyObjectPtr object__repr__ = std::make_shared<PyFunction>(
     __repr__, "__repr__", std::vector<std::string>({"self"})
 );
@@ -34,6 +39,10 @@ static PyObjectPtr object__str__ = std::make_shared<PyFunction>(
 
 static PyObjectPtr object__hash__ = std::make_shared<PyFunction>(
     __hash__, "__hash__", std::vector<std::string>({"self"})
+);
+
+static PyObjectPtr object__init__ = std::make_shared<PyFunction>(
+    __init__, "__init__", std::vector<std::string>({"self", "args", "kwargs"}), 1, true
 );
 
 static PyObjectPtr object__bases__(const PyObject&)
@@ -47,9 +56,10 @@ PyObject::PyObject()
     attributes["__str__"] = object__str__;
     attributes["__hash__"] = object__hash__;
     attributes["__bases__"] = object__bases__;
+    attributes["__init__"] = object__init__;
 }
 
-bool PyObject::gccollected()
+bool PyObject::gccollected() const
 {
     return false;
 }
@@ -68,6 +78,8 @@ PyObjectPtr PyObject::getattr(const std::string& name) const
 
     if (std::holds_alternative<PyObjectPtr>(attr))
         return std::get<PyObjectPtr>(attr);
+    else if (std::holds_alternative<PyObjectWPtr>(attr))
+        return std::get<PyObjectWPtr>(attr).lock();
     else if (std::holds_alternative<std::function<PyObjectPtr(const PyObject&)>>(attr))
         return std::get<std::function<PyObjectPtr(const PyObject&)>>(attr)(*this);
     
@@ -75,12 +87,60 @@ PyObjectPtr PyObject::getattr(const std::string& name) const
     throw std::bad_variant_access();
 }
 
-void PyObject::setattr(const std::string& name, PyObjectPtrOrFunc value)
+void PyObject::setattr(const std::string& name, std::function<PyObjectPtr(const PyObject&)> value)
 {
     attributes[name] = value;
+}
+
+void PyObject::setattr(const std::string& name, PyObjectPtr value)
+{
+    if (value && !value->gccollected())
+        attributes[name] = value;
+    else if (value)
+        throw std::invalid_argument("PyObject instances can't contain GC objects");
+}
+
+void PyObject::setattr(const std::string& name, PyObjectWPtr value)
+{
+    throw std::invalid_argument("PyObject instances can't contain weak references");
 }
 
 bool PyObject::hasattr(const std::string& name) const
 {
     return attributes.count(name);
+}
+
+void PyGCObject::setattr(const std::string& name, PyObjectPtr value)
+{
+    if (value && !value->gccollected())
+        attributes[name] = value;
+    else if (value)
+        attributes[name] = std::weak_ptr(value);
+}
+
+void PyGCObject::setattr(const std::string& name, PyObjectWPtr value)
+{
+    attributes[name] = value;
+}
+
+void PyGCObject::setattr(const std::string& name, std::function<PyObjectPtr(const PyObject&)> value)
+{
+    PyObject::setattr(name, value);
+}
+
+bool PyGCObject::gccollected() const
+{
+    return true;
+}
+
+std::vector<PyObjectWPtr> PyUserObject::getrefs()
+{
+    std::vector<PyObjectWPtr> gather;
+    for (auto &attr : attributes) {
+        if (std::holds_alternative<PyObjectWPtr>(attr.second) && std::get<PyObjectWPtr>(attr.second).lock()->gccollected())
+            gather.push_back(std::get<PyObjectWPtr>(attr.second));
+        else if (std::holds_alternative<PyObjectPtr>(attr.second) && std::get<PyObjectPtr>(attr.second)->gccollected())
+            gather.push_back(std::weak_ptr(std::get<PyObjectPtr>(attr.second)));
+    }
+    return gather;
 }

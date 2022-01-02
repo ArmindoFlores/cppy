@@ -122,46 +122,42 @@ static PyObjectPtr PyType__init__(const ParsedFunctionArguments& args)
     auto self = args.get_arg_named("self");
     auto &unnamed_args = args.get_args();
 
-    if (unnamed_args.size() == 1)
-        return self->getattr("__class__");
-    if (unnamed_args.size() == 3) {
-        // This creates a new user defined class (or type)
-        auto dict = unnamed_args[2]->as<PyDict>()->internal;
-        auto obj = std::make_shared<PyObject>();
-        obj->setattr("__class__", BT.get_type_named("type"));
-        obj->setattr("__bases__", unnamed_args[1]);
-
-        // FIXME: this should be a mappingproxy
-        obj->setattr("__dict__", unnamed_args[2]);
-
-        for (auto &attr_pair : dict) {
-            // FIXME: this could be something other than a string
-            PyObjectPtr attr_name, attr_value;
-            if (std::holds_alternative<PyObjectPtr>(attr_pair.first))
-                attr_name = std::get<PyObjectPtr>(attr_pair.first);
-            else if (std::holds_alternative<PyObjectWPtr>(attr_pair.first))
-                attr_name = std::get<PyObjectWPtr>(attr_pair.first).lock();
-            else {
-                // This should never happen
-                return helpers::new_none();
-            }
-
-            if (std::holds_alternative<PyObjectPtr>(attr_pair.second))
-                attr_value = std::get<PyObjectPtr>(attr_pair.second);
-            else if (std::holds_alternative<PyObjectWPtr>(attr_pair.second))
-                attr_value = std::get<PyObjectWPtr>(attr_pair.second).lock();
-            else {
-                // This should never happen
-                return helpers::new_none();
-            }
-
-            std::string name = attr_name->as<PyString>()->internal;
-            // FIXME: attr_value may need to be a weakptr
-            obj->setattr(name, attr_value);
-        }
-        return obj;
+    if (unnamed_args.size() == 1) {
+        // I don't know what this does
+        return helpers::new_none();
     }
-    TB.raise("type() takes 1 or 3 arguments", "TypeError");
+    if (unnamed_args.size() == 3) {
+        // I don't know what this does
+        return helpers::new_none();
+    }
+    TB.raise("type.__init__() takes 1 or 3 arguments", "TypeError");
+    // This should never be reached
+    return helpers::new_none();
+}
+
+static PyObjectPtr PyType__new__(const ParsedFunctionArguments& args)
+{
+    auto &unnamed_args = args.get_args();
+
+    if (unnamed_args.size() == 2) {
+        // Returns the type of an object
+        if (unnamed_args[0] != BT.get_type_named("type")) {
+            TB.raise("type.__new__() takes exactly 3 arguments (1 given)", "TypeError");
+        }
+        return unnamed_args[1]->getattr("__class__");
+    }
+    if (unnamed_args.size() == 4) {
+        // FIXME: this should be a user defined type (PyUserObject), not PyType
+        auto new_type = std::make_shared<PyType>(
+            unnamed_args[1]->as<PyString>()->internal,
+            unnamed_args[0]->getattr("__new__")
+        );
+        new_type->setattr("__new__", unnamed_args[0]->getattr("__new__"));
+        new_type->setattr("__class__", unnamed_args[0]);
+        new_type->setattr("__bases__", unnamed_args[2]);
+        return new_type;
+    }
+    TB.raise("type.__init__() takes 1 or 3 arguments", "TypeError");
     // This should never be reached
     return helpers::new_none();
 }
@@ -192,6 +188,10 @@ PyObjectPtr PyType::__init__ = std::make_shared<PyFunction>(
     PyType__init__, "__init__", std::vector<std::string>({"self", "args", "kwargs"}), 1, true
 );
 
+PyObjectPtr PyType::__new__ = std::make_shared<PyFunction>(
+    PyType__new__, "__new__", std::vector<std::string>({"args", "kwargs"}), 0, true
+);
+
 PyObjectPtr PyType::__repr__ = std::make_shared<PyFunction>(
     PyType__repr__, "__repr__", std::vector<std::string>({"self"})
 );
@@ -214,9 +214,11 @@ PyObjectPtr PyType::__name__(const PyObject& self)
 PyType::PyType(const std::string& name, PyObjectPtr constructor) : name(name), constructor(constructor) 
 {
     setattr("__call__", __call__);
+    setattr("__class__", __class__);
     setattr("__init__", __init__);
-    setattr("__repr__", __repr__);
     // setattr("__mro__", __mro__);
     setattr("__name__", __name__);
+    setattr("__new__", __new__);
+    setattr("__repr__", __repr__);
     setattr("mro", mro);
 }

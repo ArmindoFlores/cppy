@@ -121,8 +121,3 @@ std::vector<PyObjectWPtr> PyList::getrefs()
     }
     return refs;
 }
-
-bool PyList::gccollected()
-{
-    return true;
-}
