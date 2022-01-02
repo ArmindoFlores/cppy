@@ -31,6 +31,7 @@ namespace cppy {
 
     protected:
         std::unordered_map<std::string, std::variant<std::shared_ptr<PyObject>, std::weak_ptr<PyObject>, std::function<std::shared_ptr<PyObject>(const PyObject&)>>> attributes;
+        std::shared_ptr<PyObject> from_variant(const std::variant<std::shared_ptr<PyObject>, std::weak_ptr<PyObject>, std::function<std::shared_ptr<PyObject>(const PyObject&)>>&) const;
     };
 
     typedef std::shared_ptr<PyObject> PyObjectPtr;

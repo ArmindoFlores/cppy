@@ -135,33 +135,6 @@ static PyObjectPtr PyType__init__(const ParsedFunctionArguments& args)
     return helpers::new_none();
 }
 
-static PyObjectPtr PyType__new__(const ParsedFunctionArguments& args)
-{
-    auto &unnamed_args = args.get_args();
-
-    if (unnamed_args.size() == 2) {
-        // Returns the type of an object
-        if (unnamed_args[0] != BT.get_type_named("type")) {
-            TB.raise("type.__new__() takes exactly 3 arguments (1 given)", "TypeError");
-        }
-        return unnamed_args[1]->getattr("__class__");
-    }
-    if (unnamed_args.size() == 4) {
-        // FIXME: this should be a user defined type (PyUserObject), not PyType
-        auto new_type = std::make_shared<PyType>(
-            unnamed_args[1]->as<PyString>()->internal,
-            unnamed_args[0]->getattr("__new__")
-        );
-        new_type->setattr("__new__", unnamed_args[0]->getattr("__new__"));
-        new_type->setattr("__class__", unnamed_args[0]);
-        new_type->setattr("__bases__", unnamed_args[2]);
-        return new_type;
-    }
-    TB.raise("type.__init__() takes 1 or 3 arguments", "TypeError");
-    // This should never be reached
-    return helpers::new_none();
-}
-
 static PyObjectPtr PyType__repr__(const ParsedFunctionArguments& args)
 {
     std::string name = args.get_arg_named("self")->as<PyType>()->name;
@@ -176,6 +149,35 @@ static PyObjectPtr PyType_mro(const ParsedFunctionArguments& args)
     catch (std::invalid_argument&) {
         TB.raise("Cannot create a consistent method resolution", "TypeError");
     }
+    // This should never be reached
+    return helpers::new_none();
+}
+
+static PyObjectPtr PyType__new__(const ParsedFunctionArguments& args)
+{
+    //FIXME: this is only correct for when unnamed_args[0] == <class 'type'>
+    auto &unnamed_args = args.get_args();
+
+    if (unnamed_args.size() == 2) {
+        // Returns the type of an object
+        if (unnamed_args[0] != BT.get_type_named("type")) {
+            TB.raise("type.__new__() takes exactly 3 arguments (1 given)", "TypeError");
+        }
+        return unnamed_args[1]->getattr("__class__");
+    }
+    if (unnamed_args.size() == 4) {
+        // FIXME: this is very likely wrong
+        auto new_type = std::make_shared<PyUserObject>();
+        new_type->setattr("__new__", unnamed_args[0]->getattr("__new__"));
+        new_type->setattr("__class__", unnamed_args[0]);
+        new_type->setattr("__bases__", unnamed_args[2]);
+        new_type->setattr("__mro__", helpers::call(
+            unnamed_args[0]->getattr("mro"),
+            FunctionArguments({std::dynamic_pointer_cast<PyObject>(new_type)})
+        ));
+        return new_type;
+    }
+    TB.raise("type.__init__() takes 1 or 3 arguments", "TypeError");
     // This should never be reached
     return helpers::new_none();
 }

@@ -2,9 +2,11 @@
 #include "pytraceback.h"
 #include "pyhelpers.h"
 #include "pyfunction.h"
+#include "pystring.h"
+#include "pylist.h"
+using namespace cppy;
 #include <sstream>
 #include <iostream>
-using namespace cppy;
 
 PyObjectPtr __repr__(const ParsedFunctionArguments& args)
 {
@@ -69,22 +71,50 @@ std::vector<PyObjectWPtr> PyObject::getrefs()
     return std::vector<PyObjectWPtr>();
 }
 
-PyObjectPtr PyObject::getattr(const std::string& name) const
+PyObjectPtr PyObject::from_variant(const std::variant<PyObjectPtr, PyObjectWPtr, std::function<PyObjectPtr(const PyObject&)>>& o) const
 {
-    if (!hasattr(name))
-        TB.raise("X object has no attribute '" + name + "'", "AttributeError");
+    if (std::holds_alternative<PyObjectPtr>(o))
+        return std::get<PyObjectPtr>(o);
+    else if (std::holds_alternative<PyObjectWPtr>(o))
+        return std::get<PyObjectWPtr>(o).lock();
+    else if (std::holds_alternative<std::function<PyObjectPtr(const PyObject&)>>(o))
+        return std::get<std::function<PyObjectPtr(const PyObject&)>>(o)(*this);
 
-    auto &attr = attributes.at(name);
-
-    if (std::holds_alternative<PyObjectPtr>(attr))
-        return std::get<PyObjectPtr>(attr);
-    else if (std::holds_alternative<PyObjectWPtr>(attr))
-        return std::get<PyObjectWPtr>(attr).lock();
-    else if (std::holds_alternative<std::function<PyObjectPtr(const PyObject&)>>(attr))
-        return std::get<std::function<PyObjectPtr(const PyObject&)>>(attr)(*this);
-    
     // This should never be reached unless we have an invalid variant
     throw std::bad_variant_access();
+}
+
+PyObjectPtr PyObject::getattr(const std::string& name) const
+{
+    if (attributes.count(name))
+        return from_variant(attributes.at(name));
+
+    if (name == "__class__")
+        TB.raise("X object has no attribute '" + name + "'", "AttributeError");
+
+    PyObjectPtr cls = from_variant(attributes.at("__class__"));
+
+    auto mro = cls->getattr("__mro__")->as<PyList>()->internal;
+    for (auto &type : mro) {
+        PyObjectPtr type_ptr;
+        if (std::holds_alternative<PyObjectPtr>(type))
+            type_ptr = std::get<PyObjectPtr>(type);
+        else if (std::holds_alternative<PyObjectWPtr>(type))
+            type_ptr = std::get<PyObjectWPtr>(type).lock();
+        else 
+            continue;
+
+        // Prevent recursion
+        if (type_ptr.get() == this)
+            continue;
+
+        if (type_ptr->attributes.count(name))
+            return from_variant(type_ptr->attributes.at(name));
+    }
+    TB.raise("X object has no attribute '" + name + "'", "AttributeError");
+    
+    // This should never be reached
+    return helpers::new_none();
 }
 
 void PyObject::setattr(const std::string& name, std::function<PyObjectPtr(const PyObject&)> value)
@@ -107,7 +137,33 @@ void PyObject::setattr(const std::string& name, PyObjectWPtr value)
 
 bool PyObject::hasattr(const std::string& name) const
 {
-    return attributes.count(name);
+    if (attributes.count(name))
+        return true;
+
+    // Prevent recursion
+    if (name == "__class__")
+        return false;
+
+    PyObjectPtr cls = from_variant(attributes.at("__class__"));
+
+    auto mro = cls->getattr("__mro__")->as<PyList>()->internal;
+    for (auto &type : mro) {
+        PyObjectPtr type_ptr;
+        if (std::holds_alternative<PyObjectPtr>(type))
+            type_ptr = std::get<PyObjectPtr>(type);
+        else if (std::holds_alternative<PyObjectWPtr>(type))
+            type_ptr = std::get<PyObjectWPtr>(type).lock();
+        else 
+            continue;
+
+        // Prevent recursion
+        if (type_ptr.get() == this)
+            continue;
+
+        if (type_ptr->attributes.count(name))
+            return true;
+    }
+    return false;
 }
 
 void PyGCObject::setattr(const std::string& name, PyObjectPtr value)
