@@ -104,6 +104,7 @@ namespace cppy {
 
         PyObjectPtr call(const FunctionArguments&);
         static PyObjectPtr call_wrapper(const PyObject&);
+        static PyObjectPtr __class__(const PyObject&);
         static PyObjectPtr __repr__;
         std::string function_name;
 

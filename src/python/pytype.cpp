@@ -213,12 +213,12 @@ PyObjectPtr PyType::__name__(const PyObject& self)
     return helpers::new_string(t.name);
 }
 
-PyType::PyType(const std::string& name, PyObjectPtr constructor) : name(name), constructor(constructor) 
+PyType::PyType(const std::string& name, PyObjectPtr constructor, PyObjectPtr bases) : name(name), constructor(constructor) 
 {
     setattr("__call__", __call__);
     setattr("__class__", __class__);
+    setattr("__bases__", bases);
     setattr("__init__", __init__);
-    // setattr("__mro__", __mro__);
     setattr("__name__", __name__);
     setattr("__new__", __new__);
     setattr("__repr__", __repr__);

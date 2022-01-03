@@ -2,6 +2,7 @@
 #include "pystring.h"
 #include "pyfunction.h"
 #include "pytypes.h"
+#include "pyhelpers.h"
 using namespace cppy;
 
 static PyObjectPtr PyNone__repr__(const ParsedFunctionArguments &args)

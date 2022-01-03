@@ -13,13 +13,24 @@ std::shared_ptr<BuiltinTypes> BuiltinTypes::instance = nullptr;
 
 BuiltinTypes::BuiltinTypes()
 {
+    // <class 'object'>
+    types["object"] = std::make_shared<PyType>(
+        "object",
+        std::make_shared<PyFunction>(
+            __object__,
+            "object"
+        ),
+        helpers::new_tuple({})
+    );
+
     // <class 'type'>
     types["type"] = std::make_shared<PyType>(
         "type",
         std::make_shared<PyFunction>(
             __type__,
             "type"
-        )
+        ),
+        helpers::new_tuple({types["object"]})
     );
 
     // <class 'NoneType'>
@@ -28,7 +39,8 @@ BuiltinTypes::BuiltinTypes()
         std::make_shared<PyFunction>(
             __none__,
             "none"
-        )
+        ),
+        helpers::new_tuple({types["object"]})
     );
 
     // <class 'NotImplemented'>
@@ -37,7 +49,8 @@ BuiltinTypes::BuiltinTypes()
         std::make_shared<PyFunction>(
             __none__,
             "none"
-        )
+        ),
+        helpers::new_tuple({types["object"]})
     );
 
     // <class 'str'>
@@ -49,7 +62,8 @@ BuiltinTypes::BuiltinTypes()
             std::vector<std::string>({"object"}),
             std::vector<PyObjectPtr>({helpers::new_string("")}),
             0
-        )
+        ),
+        helpers::new_tuple({types["object"]})
     );
 
     // <class 'int'>
@@ -61,7 +75,8 @@ BuiltinTypes::BuiltinTypes()
             std::vector<std::string>({"x", "base"}),
             std::vector<PyObjectPtr>({helpers::new_int(10)}),
             1
-        )
+        ),
+        helpers::new_tuple({types["object"]})
     );
 
     // <class 'list'>
@@ -70,7 +85,8 @@ BuiltinTypes::BuiltinTypes()
         std::make_shared<PyFunction>(
             __list__,
             "list"
-        )
+        ),
+        helpers::new_tuple({types["object"]})
     );
 
     // <class 'dict'>
@@ -79,7 +95,8 @@ BuiltinTypes::BuiltinTypes()
         std::make_shared<PyFunction>(
             __dict__,
             "dict"
-        )
+        ),
+        helpers::new_tuple({types["object"]})
     );
 }
 
@@ -97,6 +114,11 @@ PyObjectPtr BuiltinTypes::get_type_named(const std::string& name) const
 }
 
 PyObjectPtr BuiltinTypes::__type__(const ParsedFunctionArguments& args)
+{
+    return helpers::new_none();
+}
+
+PyObjectPtr BuiltinTypes::__object__(const ParsedFunctionArguments& args)
 {
     return helpers::new_none();
 }

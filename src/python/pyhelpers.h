@@ -11,6 +11,7 @@ namespace cppy {
         static PyObjectPtr new_string(const std::string& s);
         static PyObjectPtr new_int(long long x);
         static PyObjectPtr new_dict();
+        static PyObjectPtr new_tuple(const std::vector<PyObjectAnyPtr>&);
         static PyObjectPtr new_list();
         static PyObjectPtr new_list(const std::vector<PyObjectPtr>&);
         static PyObjectPtr new_none();

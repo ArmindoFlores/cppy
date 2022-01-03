@@ -3,6 +3,7 @@
 #include "pyint.h"
 #include "pygarbagecollector.h"
 #include "pylist.h"
+#include "pytuple.h"
 #include "pydict.h"
 #include "pyfunction.h"
 #include "pytraceback.h"
@@ -31,6 +32,12 @@ PyObjectPtr helpers::new_notimpl()
     return GI.get("notimpl");
 }
 
+PyObjectPtr helpers::new_tuple(const std::vector<PyObjectAnyPtr>& contents)
+{
+    PyObjectPtr t = std::make_shared<PyTuple>(contents);
+    if (t->gccollected()) GC.add_container(t);
+    return t;
+}
 
 PyObjectPtr helpers::new_list()
 {

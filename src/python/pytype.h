@@ -7,7 +7,7 @@
 namespace cppy {
     class PyType : public PyObject {
     public:
-        PyType(const std::string& name, PyObjectPtr constructor);
+        PyType(const std::string& name, PyObjectPtr constructor, PyObjectPtr bases);
 
         static PyObjectPtr __class__(const PyObject&);
         static PyObjectPtr __mro__(const PyObject&);

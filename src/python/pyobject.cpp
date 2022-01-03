@@ -8,57 +8,8 @@ using namespace cppy;
 #include <sstream>
 #include <iostream>
 
-PyObjectPtr __repr__(const ParsedFunctionArguments& args)
-{
-    auto memory_location = args.get_arg_named("self").get();
-    std::stringstream ss;
-    ss << static_cast<const void*>(memory_location);
-    return helpers::new_string("<object object at " + ss.str() + ">");
-}
-
-PyObjectPtr __str__(const ParsedFunctionArguments& args)
-{
-    return helpers::call_member("__repr__", args.get_arg_named("self"), FunctionArguments({}));
-}
-
-PyObjectPtr __hash__(const ParsedFunctionArguments& args)
-{
-    return helpers::new_int(reinterpret_cast<std::intptr_t>(args.get_arg_named("self").get()));
-}
-
-PyObjectPtr __init__(const ParsedFunctionArguments& args)
-{
-    return helpers::new_none();
-}
-
-static PyObjectPtr object__repr__ = std::make_shared<PyFunction>(
-    __repr__, "__repr__", std::vector<std::string>({"self"})
-);
-
-static PyObjectPtr object__str__ = std::make_shared<PyFunction>(
-    __str__, "__str__", std::vector<std::string>({"self"})
-);
-
-static PyObjectPtr object__hash__ = std::make_shared<PyFunction>(
-    __hash__, "__hash__", std::vector<std::string>({"self"})
-);
-
-static PyObjectPtr object__init__ = std::make_shared<PyFunction>(
-    __init__, "__init__", std::vector<std::string>({"self", "args", "kwargs"}), 1, true
-);
-
-static PyObjectPtr object__bases__(const PyObject&)
-{
-    return helpers::new_list();
-}
-
 PyObject::PyObject()
 {
-    attributes["__repr__"] = object__repr__;
-    attributes["__str__"] = object__str__;
-    attributes["__hash__"] = object__hash__;
-    attributes["__bases__"] = object__bases__;
-    attributes["__init__"] = object__init__;
 }
 
 bool PyObject::gccollected() const
@@ -89,10 +40,15 @@ PyObjectPtr PyObject::getattr(const std::string& name) const
     if (attributes.count(name))
         return from_variant(attributes.at(name));
 
+    // Prevent recursion (every type object must have its own __mro__ and __class__ attributes)
     if (name == "__class__")
-        TB.raise("X object has no attribute '" + name + "'", "AttributeError");
+        TB.raise("Fatal: object has no __class__", "Fatal");
 
     PyObjectPtr cls = from_variant(attributes.at("__class__"));
+    std::string cls_name = cls->getattr("__name__")->as<PyString>()->internal;
+
+    if (name == "__mro__")
+        TB.raise("'" + cls_name + "' object has no attribute '" + name + "'", "AttributeError");
 
     auto mro = cls->getattr("__mro__")->as<PyList>()->internal;
     for (auto &type : mro) {
@@ -111,7 +67,7 @@ PyObjectPtr PyObject::getattr(const std::string& name) const
         if (type_ptr->attributes.count(name))
             return from_variant(type_ptr->attributes.at(name));
     }
-    TB.raise("X object has no attribute '" + name + "'", "AttributeError");
+    TB.raise("'" + cls_name + "' object has no attribute '" + name + "'", "AttributeError");
     
     // This should never be reached
     return helpers::new_none();
