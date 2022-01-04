@@ -20,6 +20,8 @@ namespace cppy {
         static PyObjectPtr numerator(const PyObject&);
         static PyObjectPtr real(const PyObject&);
 
+        static void construct(PyObject*);
+
         // FIXME: Python uses BIGINTs
         long long value;
     };

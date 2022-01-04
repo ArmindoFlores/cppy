@@ -13,6 +13,7 @@ namespace cppy {
         static PyObjectPtr __bool__, __repr__, __str__;
         static PyObjectPtr __class__(const PyObject&);
 
+        static void construct(PyObject*);
     };
 }
 

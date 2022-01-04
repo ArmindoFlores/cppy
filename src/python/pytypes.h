@@ -16,6 +16,7 @@ namespace cppy {
             static BuiltinTypes &the();
 
             PyObjectPtr get_type_named(const std::string& name) const;
+            bool is_builtin_type(PyObjectPtr) const;
 
         private:
             static std::shared_ptr<BuiltinTypes> instance;
@@ -31,6 +32,8 @@ namespace cppy {
             static PyObjectPtr __dict__(const ParsedFunctionArguments&);
             static PyObjectPtr __list__(const ParsedFunctionArguments&);
             static PyObjectPtr __notimpl__(const ParsedFunctionArguments&);
+
+            void init_builtin_types();
         };
     }
 }

@@ -39,6 +39,19 @@ PyObjectPtr helpers::new_tuple(const std::vector<PyObjectAnyPtr>& contents)
     return t;
 }
 
+PyObjectPtr helpers::new_tuple()
+{
+    return new_tuple(std::vector<PyObjectAnyPtr>({}));
+}
+
+PyObjectPtr helpers::new_tuple(const std::vector<PyObjectPtr>& contents)
+{
+    std::vector<PyObjectAnyPtr> new_contents(contents.size());
+    for (std::size_t i = 0; i < contents.size(); i++)
+        new_contents[i] = contents[i];
+    return new_tuple(new_contents);
+}
+
 PyObjectPtr helpers::new_list()
 {
     PyObjectPtr l = std::make_shared<PyList>();
@@ -84,7 +97,7 @@ PyObjectPtr helpers::call_member(const std::string& name, PyObjectPtr obj, Funct
     FunctionArguments new_args(args.size()+1);
     new_args[0] = obj;
     std::copy(args.begin(), args.end(), new_args.begin()+1);
-    return call(obj->getattr(name), new_args);
+    return call(obj->getattr("__class__")->getattr(name), new_args);
 }
 
 inline bool helpers::is(PyObjectPtr obj1, PyObjectPtr obj2)

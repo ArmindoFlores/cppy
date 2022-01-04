@@ -85,15 +85,19 @@ PyObjectPtr PyInt::__class__(const PyObject&)
     return BT.get_type_named("int");
 }
 
+void PyInt::construct(PyObject *self)
+{
+    self->setattr("__hash__", __hash__);
+    self->setattr("__add__", __add__);
+    self->setattr("__radd__", __radd__);
+    self->setattr("__sub__", __sub__);
+    self->setattr("__rsub__", __rsub__);
+    self->setattr("__str__", __str__);
+    self->setattr("__repr__", __repr__);
+}
+
 PyInt::PyInt()
 {
-    setattr("__hash__", __hash__);
-    setattr("__add__", __add__);
-    setattr("__radd__", __radd__);
-    setattr("__sub__", __sub__);
-    setattr("__rsub__", __rsub__);
-    setattr("__str__", __str__);
-    setattr("__repr__", __repr__);
     setattr("__class__", __class__);
 }
 

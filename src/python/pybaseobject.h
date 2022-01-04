@@ -10,6 +10,7 @@ namespace cppy {
 
         static PyObjectPtr __repr__, __str__, __hash__, __init__;
         static PyObjectPtr __class__(const PyObject&);
+        static void construct(PyObject*);
     };
 }
 

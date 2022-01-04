@@ -103,13 +103,17 @@ PyObjectPtr PyList::__hash__(const PyObject&)
     return helpers::new_none();
 }
 
+void PyList::construct(PyObject* self)
+{
+    self->setattr("__repr__", __repr__);
+    self->setattr("__hash__", __hash__);
+    self->setattr("append", append);
+    self->setattr("pop", pop);
+}
+
 PyList::PyList() 
 {
-    setattr("__repr__", __repr__);
     setattr("__class__", __class__);
-    setattr("__hash__", __hash__);
-    setattr("append", append);
-    setattr("pop", pop);
 }
 
 std::vector<PyObjectWPtr> PyList::getrefs()

@@ -1,5 +1,6 @@
 #include "pyfunction.h"
 #include "pytraceback.h"
+#include "pytypes.h"
 #include "pyhelpers.h"
 using namespace cppy;
 #include <algorithm>
@@ -139,33 +140,6 @@ PyObjectPtr PyFunction::__repr__ = std::make_shared<PyFunction>(
     std::vector<std::string>({"self"})
 );
 
-PyFunction::PyFunction(
-    PyInternalFunc f, 
-    const std::string& fn
-) : PyFunction(f, fn, std::vector<std::string>()) {}
-
-PyFunction::PyFunction(
-    PyInternalFunc f, 
-    const std::string& fn,
-    const std::vector<std::string>& param_names,
-    std::size_t star_pos,
-    bool dstar
-) : PyFunction(f, fn, param_names, std::vector<PyObjectPtr>(), 0, star_pos, dstar) {}
-
-PyFunction::PyFunction(
-    PyInternalFunc f, 
-    const std::string& fn,
-    const std::vector<std::string>& param_names,
-    const std::vector<PyObjectPtr> defaults,
-    std::size_t defaults_offset,
-    std::size_t star_pos,
-    bool dstar
-) : internal(f), function_name(fn), param_names(param_names), defaults(defaults), defaults_offset(defaults_offset), star_pos(star_pos), dstar(dstar) 
-{
-    setattr("__call__", call_wrapper);
-    setattr("__repr__", __repr__);
-}
-
 PyObjectPtr PyFunction::call_wrapper(const PyObject& self)
 {
     // FIXME: This seems like a horrible way to do it
@@ -233,4 +207,41 @@ PyObjectPtr PyFunction::call(const FunctionArguments &args)
     auto result = internal(parsed);
     TB.pop();
     return result;
+}
+
+PyObjectPtr PyFunction::__class__(const PyObject&)
+{
+    return BT.get_type_named("function");
+}
+
+void PyFunction::construct(PyObject *self)
+{
+    self->setattr("__call__", call_wrapper);
+    self->setattr("__repr__", __repr__);
+}
+
+PyFunction::PyFunction(
+    PyInternalFunc f, 
+    const std::string& fn
+) : PyFunction(f, fn, std::vector<std::string>()) {}
+
+PyFunction::PyFunction(
+    PyInternalFunc f, 
+    const std::string& fn,
+    const std::vector<std::string>& param_names,
+    std::size_t star_pos,
+    bool dstar
+) : PyFunction(f, fn, param_names, std::vector<PyObjectPtr>(), 0, star_pos, dstar) {}
+
+PyFunction::PyFunction(
+    PyInternalFunc f, 
+    const std::string& fn,
+    const std::vector<std::string>& param_names,
+    const std::vector<PyObjectPtr> defaults,
+    std::size_t defaults_offset,
+    std::size_t star_pos,
+    bool dstar
+) : internal(f), function_name(fn), param_names(param_names), defaults(defaults), defaults_offset(defaults_offset), star_pos(star_pos), dstar(dstar) 
+{
+    setattr("__class__", __class__);
 }

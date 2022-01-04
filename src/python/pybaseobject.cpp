@@ -49,11 +49,15 @@ PyObjectPtr PyBaseObject::__class__(const PyObject&)
     return BT.get_type_named("object");
 }
 
+void PyBaseObject::construct(PyObject* self)
+{
+    self->setattr("__repr__", __repr__);
+    self->setattr("__str__", __str__);
+    self->setattr("__hash__", __hash__);
+    self->setattr("__init__", __init__);
+}
+
 PyBaseObject::PyBaseObject()
 {
-    setattr("__repr__", __repr__);
-    setattr("__str__", __str__);
-    setattr("__hash__", __hash__);
     setattr("__class__", __class__);
-    setattr("__init__", __init__);
 }

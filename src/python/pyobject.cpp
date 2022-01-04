@@ -3,7 +3,8 @@
 #include "pyhelpers.h"
 #include "pyfunction.h"
 #include "pystring.h"
-#include "pylist.h"
+#include "pytype.h"
+#include "pytuple.h"
 using namespace cppy;
 #include <sstream>
 #include <iostream>
@@ -42,15 +43,16 @@ PyObjectPtr PyObject::getattr(const std::string& name) const
 
     // Prevent recursion (every type object must have its own __mro__ and __class__ attributes)
     if (name == "__class__")
-        TB.raise("Fatal: object has no __class__", "Fatal");
+        TB.raise("object has no __class__", "Fatal");
 
-    PyObjectPtr cls = from_variant(attributes.at("__class__"));
+    // PyObjectPtr cls = from_variant(attributes.at("__class__"));
+    PyObjectPtr cls = getattr("__class__");
     std::string cls_name = cls->getattr("__name__")->as<PyString>()->internal;
 
     if (name == "__mro__")
         TB.raise("'" + cls_name + "' object has no attribute '" + name + "'", "AttributeError");
 
-    auto mro = cls->getattr("__mro__")->as<PyList>()->internal;
+    auto mro = cls->getattr("__mro__")->as<PyTuple>()->internal;
     for (auto &type : mro) {
         PyObjectPtr type_ptr;
         if (std::holds_alternative<PyObjectPtr>(type))
@@ -59,6 +61,8 @@ PyObjectPtr PyObject::getattr(const std::string& name) const
             type_ptr = std::get<PyObjectWPtr>(type).lock();
         else 
             continue;
+
+        // std::cout << "MRO option: " << type_ptr->as<PyType>()->name << std::endl;
 
         // Prevent recursion
         if (type_ptr.get() == this)
@@ -83,7 +87,7 @@ void PyObject::setattr(const std::string& name, PyObjectPtr value)
     if (value && !value->gccollected())
         attributes[name] = value;
     else if (value)
-        throw std::invalid_argument("PyObject instances can't contain GC objects");
+        throw std::invalid_argument("PyObject instances can't contain GC objects (trying to set '" + name + "')");
 }
 
 void PyObject::setattr(const std::string& name, PyObjectWPtr value)
@@ -102,7 +106,7 @@ bool PyObject::hasattr(const std::string& name) const
 
     PyObjectPtr cls = from_variant(attributes.at("__class__"));
 
-    auto mro = cls->getattr("__mro__")->as<PyList>()->internal;
+    auto mro = cls->getattr("__mro__")->as<PyTuple>()->internal;
     for (auto &type : mro) {
         PyObjectPtr type_ptr;
         if (std::holds_alternative<PyObjectPtr>(type))

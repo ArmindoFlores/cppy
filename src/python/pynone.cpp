@@ -23,9 +23,13 @@ PyObjectPtr PyNone::__class__(const PyObject&)
     return BT.get_type_named("none");
 }
 
+void PyNone::construct(PyObject *self)
+{
+    self->setattr("__str__", __str__);
+    self->setattr("__repr__", __repr__);
+}
+
 PyNone::PyNone()
 {
-    setattr("__str__", __str__);
-    setattr("__repr__", __repr__);
     setattr("__class__", __class__);
 }

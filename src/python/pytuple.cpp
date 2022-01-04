@@ -57,21 +57,25 @@ PyObjectPtr PyTuple::__hash__(const PyObject&)
 PyTuple::PyTuple(const std::vector<PyObjectAnyPtr>& i)
 {
     for (auto &element : i) {
-        PyObjectPtr ptr;
-        if (std::holds_alternative<PyObjectPtr>(element)) 
-            ptr = std::get<PyObjectPtr>(element);
+        if (std::holds_alternative<PyObjectPtr>(element)) {
+            PyObjectPtr ptr = std::get<PyObjectPtr>(element);
+            if (ptr->gccollected())
+                internal.push_back(std::weak_ptr(ptr));
+            else
+                internal.push_back(ptr);
+        }
         else if (std::holds_alternative<PyObjectWPtr>(element))
-            ptr = std::get<PyObjectWPtr>(element).lock();
+            internal.push_back(std::get<PyObjectWPtr>(element));
         else 
             continue;
-        if (ptr->gccollected())
-            internal.push_back(std::weak_ptr(ptr));
-        else
-            internal.push_back(ptr);
     }
-    setattr("__repr__", __repr__);
     setattr("__class__", __class__);
-    setattr("__hash__", __hash__);
+}
+
+void PyTuple::construct(PyObject *self)
+{
+    self->setattr("__repr__", __repr__);
+    self->setattr("__hash__", __hash__);
 }
 
 std::vector<PyObjectWPtr> PyTuple::getrefs()
@@ -87,8 +91,14 @@ std::vector<PyObjectWPtr> PyTuple::getrefs()
 bool PyTuple::gccollected() const 
 {
     for (auto &elem : internal) {
-        if (std::holds_alternative<PyObjectWPtr>(elem))
-            return true;
+        if (std::holds_alternative<PyObjectWPtr>(elem)) {
+            if (std::get<PyObjectWPtr>(elem).lock()->gccollected())
+                return true;
+        }
+        else if (std::holds_alternative<PyObjectPtr>(elem)) {
+            if (std::get<PyObjectPtr>(elem)->gccollected())
+                return true;
+        }
     } 
     return false;
 }

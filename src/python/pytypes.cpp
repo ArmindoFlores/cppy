@@ -2,12 +2,18 @@
 #include "pyhelpers.h"
 #include "pybuiltins.h"
 #include "pyint.h"
+#include "pybaseobject.h"
 #include "pylist.h"
+#include "pydict.h"
+#include "pytuple.h"
+#include "pynotimplemented.h"
+#include "pystring.h"
 #include "pygarbagecollector.h"
 #include "pyglobalinstances.h"
 #include "pytraceback.h"
 using namespace cppy;
 using namespace cppy::globals;
+#include <iostream>
 
 std::shared_ptr<BuiltinTypes> BuiltinTypes::instance = nullptr;
 
@@ -16,88 +22,74 @@ BuiltinTypes::BuiltinTypes()
     // <class 'object'>
     types["object"] = std::make_shared<PyType>(
         "object",
-        std::make_shared<PyFunction>(
-            __object__,
-            "object"
-        ),
-        helpers::new_tuple({})
+        PyBaseObject::construct,
+        helpers::new_tuple()
     );
 
     // <class 'type'>
     types["type"] = std::make_shared<PyType>(
         "type",
-        std::make_shared<PyFunction>(
-            __type__,
-            "type"
-        ),
-        helpers::new_tuple({types["object"]})
+        PyType::construct,
+        helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(types["object"])}))
+    );
+
+    // <class 'function'>
+    types["function"] = std::make_shared<PyType>(
+        "function",
+        PyFunction::construct,
+        helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(types["object"])}))
     );
 
     // <class 'NoneType'>
     types["none"] = std::make_shared<PyType>(
         "NoneType",
-        std::make_shared<PyFunction>(
-            __none__,
-            "none"
-        ),
-        helpers::new_tuple({types["object"]})
+        PyNone::construct,
+        helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(types["object"])}))
     );
 
     // <class 'NotImplemented'>
     types["notimpl"] = std::make_shared<PyType>(
         "NotImplemented",
-        std::make_shared<PyFunction>(
-            __none__,
-            "none"
-        ),
-        helpers::new_tuple({types["object"]})
+        PyNotImplemented::construct,
+        helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(types["object"])}))
     );
 
     // <class 'str'>
     types["str"] = std::make_shared<PyType>(
         "str",
-        std::make_shared<PyFunction>(
-            __str__,
-            "str",
-            std::vector<std::string>({"object"}),
-            std::vector<PyObjectPtr>({helpers::new_string("")}),
-            0
-        ),
-        helpers::new_tuple({types["object"]})
+        PyString::construct,
+        helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(types["object"])}))
     );
 
     // <class 'int'>
     types["int"] = std::make_shared<PyType>(
         "int",
-        std::make_shared<PyFunction>(
-            __int__,
-            "int",
-            std::vector<std::string>({"x", "base"}),
-            std::vector<PyObjectPtr>({helpers::new_int(10)}),
-            1
-        ),
-        helpers::new_tuple({types["object"]})
+        PyInt::construct,
+        helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(types["object"])}))
     );
 
     // <class 'list'>
     types["list"] = std::make_shared<PyType>(
         "list",
-        std::make_shared<PyFunction>(
-            __list__,
-            "list"
-        ),
-        helpers::new_tuple({types["object"]})
+        PyList::construct,
+        helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(types["object"])}))
+    );
+
+    // <class 'tuple'>
+    types["tuple"] = std::make_shared<PyType>(
+        "tuple",
+        PyTuple::construct,
+        helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(types["object"])}))
     );
 
     // <class 'dict'>
     types["dict"] = std::make_shared<PyType>(
         "dict",
-        std::make_shared<PyFunction>(
-            __dict__,
-            "dict"
-        ),
-        helpers::new_tuple({types["object"]})
+        PyDict::construct,
+        helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(types["object"])}))
     );
+
+    init_builtin_types();
 }
 
 BuiltinTypes &BuiltinTypes::the()
@@ -113,51 +105,22 @@ PyObjectPtr BuiltinTypes::get_type_named(const std::string& name) const
     return types.at(name);
 }
 
-PyObjectPtr BuiltinTypes::__type__(const ParsedFunctionArguments& args)
+bool BuiltinTypes::is_builtin_type(PyObjectPtr t) const
 {
-    return helpers::new_none();
-}
-
-PyObjectPtr BuiltinTypes::__object__(const ParsedFunctionArguments& args)
-{
-    return helpers::new_none();
-}
-
-PyObjectPtr BuiltinTypes::__str__(const ParsedFunctionArguments& args)
-{
-    if (args.get_arg_named("object")->hasattr("__str__")) {
-        return helpers::call_member("__str__", args.get_arg_named("object"), FunctionArguments());
+    for (const auto &pair: types) {
+        if (pair.second == t)
+            return true;
     }
-    return helpers::call_member("__repr__", args.get_arg_named("object"), FunctionArguments());
+    return false;
 }
 
-PyObjectPtr BuiltinTypes::__int__(const ParsedFunctionArguments& args)
+void BuiltinTypes::init_builtin_types()
 {
-    // FIXME: currently we can only make integers out of other integers
-    auto base = args.get_arg_named("base")->as<PyInt>()->value;
-    auto value = args.get_arg_named("x")->as<PyInt>()->value;
-    if (base != 10) {
-        TB.raise("base != 10 is not implemented", "NotImplementedError");
+    // Hardcode MROs for the builtin types
+    for (auto &pair : types) {
+        if (pair.first != "object")
+            pair.second->setattr("__mro__", helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(pair.second), std::weak_ptr(types["object"])})));
+        else
+            pair.second->setattr("__mro__", helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(pair.second)})));
     }
-    return helpers::new_int(value);
-}
-
-PyObjectPtr BuiltinTypes::__none__(const ParsedFunctionArguments& args)
-{
-    return GI.get("none");
-}
-
-PyObjectPtr BuiltinTypes::__notimpl__(const ParsedFunctionArguments& args)
-{
-    return GI.get("notimpl");
-}
-
-PyObjectPtr BuiltinTypes::__list__(const ParsedFunctionArguments& args)
-{
-    return helpers::new_list();
-}
-
-PyObjectPtr BuiltinTypes::__dict__(const ParsedFunctionArguments& args)
-{
-    return helpers::new_dict();
 }

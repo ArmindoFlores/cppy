@@ -21,9 +21,13 @@ PyObjectPtr PyNotImplemented::__class__(const PyObject&)
     return BT.get_type_named("notimpl");
 }
 
+void PyNotImplemented::construct(PyObject *self)
+{
+    self->setattr("__str__", __str__);
+    self->setattr("__repr__", __repr__);
+}
+
 PyNotImplemented::PyNotImplemented()
 {
-    setattr("__str__", __str__);
-    setattr("__repr__", __repr__);
     setattr("__class__", __class__);
 }

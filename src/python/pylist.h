@@ -17,6 +17,8 @@ namespace cppy {
         static PyObjectPtr __bool__, __len__, __repr__, __str__;
         static PyObjectPtr append, pop;
 
+        static void construct(PyObject*);
+
         std::vector<PyObjectAnyPtr> internal;
     };
 }

@@ -180,12 +180,16 @@ PyObjectPtr PyDict::__class__(const PyObject&)
     return BT.get_type_named("dict");
 }
 
+void PyDict::construct(PyObject *self)
+{
+    self->setattr("__repr__", __repr__);
+    self->setattr("__delitem__", __delitem__);
+    self->setattr("__getitem__", __getitem__);
+    self->setattr("__setitem__", __setitem__);
+}
+
 PyDict::PyDict()
 {
-    setattr("__repr__", __repr__);
-    setattr("__delitem__", __delitem__);
-    setattr("__getitem__", __getitem__);
-    setattr("__setitem__", __setitem__);
     setattr("__class__", __class__);
 }
 

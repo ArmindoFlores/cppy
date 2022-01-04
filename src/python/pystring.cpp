@@ -49,12 +49,16 @@ PyObjectPtr PyString::__class__(const PyObject&)
     return BT.get_type_named("str");
 }
 
+void PyString::construct(PyObject* self)
+{
+    self->setattr("__repr__", __repr__);
+    self->setattr("__str__", __str__);
+    self->setattr("capitalize", capitalize);
+}
+
 PyString::PyString()
 {
-    setattr("__repr__", __repr__);
-    setattr("__str__", __str__);
     setattr("__class__", __class__);
-    setattr("capitalize", capitalize);
 }
 
 PyString::PyString(const std::string &s) : PyString()

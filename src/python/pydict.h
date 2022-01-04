@@ -19,6 +19,8 @@ namespace cppy {
 
         static PyObjectPtr __repr__, __len__, __getitem__, __setitem__, __delitem__;
         static PyObjectPtr __class__(const PyObject&);
+
+        static void construct(PyObject*);
         
         std::map<PyObjectAnyPtr, PyObjectAnyPtr, CustomCompare> internal;
     };

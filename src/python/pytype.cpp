@@ -2,12 +2,15 @@
 #include "pyhelpers.h"
 #include "pylist.h"
 #include "pytraceback.h"
+#include "pytuple.h"
 #include "pytypes.h"
 #include "pystring.h"
 #include "pydict.h"
+#include "pygarbagecollector.h"
 using namespace cppy;
 #include <algorithm>
 #include <unordered_map>
+#include <iostream>
 
 /*
  * Merge function for the default MRO function
@@ -44,7 +47,7 @@ std::vector<PyObjectPtr> mro_merge(std::vector<std::vector<PyObjectPtr>>& lists)
                 // We found a valid candidate to merge
                 found = true;
                 ptr = candidate;
-                break;
+                //break;
             }
         }
         // If we tried to compute somethind
@@ -86,7 +89,7 @@ static std::vector<PyObjectPtr> mro_r(PyObjectPtr cls, bool reset=false)
     
     std::vector<PyObjectPtr> result;
 
-    std::vector<PyObjectAnyPtr> anybases = cls->getattr("__bases__")->as<PyList>()->internal;
+    std::vector<PyObjectAnyPtr> anybases = cls->getattr("__bases__")->as<PyTuple>()->internal;
     std::vector<PyObjectPtr> bases(anybases.size());
     for (std::size_t i = 0; i < anybases.size(); i++) {
         if (std::holds_alternative<PyObjectPtr>(anybases[i]))
@@ -113,38 +116,39 @@ static std::vector<PyObjectPtr> mro_r(PyObjectPtr cls, bool reset=false)
 
 static PyObjectPtr PyType__call__(const ParsedFunctionArguments& args)
 {
-    auto constructor = args.get_arg_named("self")->as<PyType>()->constructor;
-    return helpers::call(constructor, args.as_function_args());
+    // FIXME: do something here
+    return helpers::new_none();
 }
 
 static PyObjectPtr PyType__init__(const ParsedFunctionArguments& args)
 {
     auto self = args.get_arg_named("self");
-    auto &unnamed_args = args.get_args();
+    self->setattr("__mro__", helpers::new_tuple(mro_r(args.get_arg_named("self"), true)));
+    // auto &unnamed_args = args.get_args();
 
-    if (unnamed_args.size() == 1) {
-        // I don't know what this does
-        return helpers::new_none();
-    }
-    if (unnamed_args.size() == 3) {
-        // I don't know what this does
-        return helpers::new_none();
-    }
-    TB.raise("type.__init__() takes 1 or 3 arguments", "TypeError");
+    // if (unnamed_args.size() == 1) {
+    //     // I don't know what this does
+    //     return helpers::new_none();
+    // }
+    // if (unnamed_args.size() == 3) {
+    //     // I don't know what this does
+    //     return helpers::new_none();
+    // }
+    // TB.raise("type.__init__() takes 1 or 3 arguments", "TypeError");
     // This should never be reached
     return helpers::new_none();
 }
 
 static PyObjectPtr PyType__repr__(const ParsedFunctionArguments& args)
 {
-    std::string name = args.get_arg_named("self")->as<PyType>()->name;
+    std::string name = args.get_arg_named("self")->getattr("__name__")->as<PyString>()->internal;
     return helpers::new_string("<class '" + name + "'>");
 }
 
 static PyObjectPtr PyType_mro(const ParsedFunctionArguments& args)
 {
     try {
-        return helpers::new_list(mro_r(args.get_arg_named("self"), true));   
+        return helpers::new_tuple(mro_r(args.get_arg_named("self"), true));   
     }
     catch (std::invalid_argument&) {
         TB.raise("Cannot create a consistent method resolution", "TypeError");
@@ -168,13 +172,15 @@ static PyObjectPtr PyType__new__(const ParsedFunctionArguments& args)
     if (unnamed_args.size() == 4) {
         // FIXME: this is very likely wrong
         auto new_type = std::make_shared<PyUserObject>();
-        new_type->setattr("__new__", unnamed_args[0]->getattr("__new__"));
+        // new_type->setattr("__new__", unnamed_args[0]->getattr("__new__"));
         new_type->setattr("__class__", unnamed_args[0]);
         new_type->setattr("__bases__", unnamed_args[2]);
+        new_type->setattr("__name__", unnamed_args[1]);
         new_type->setattr("__mro__", helpers::call(
             unnamed_args[0]->getattr("mro"),
             FunctionArguments({std::dynamic_pointer_cast<PyObject>(new_type)})
         ));
+        GC.add_container(std::dynamic_pointer_cast<PyObject>(new_type));
         return new_type;
     }
     TB.raise("type.__init__() takes 1 or 3 arguments", "TypeError");
@@ -213,14 +219,21 @@ PyObjectPtr PyType::__name__(const PyObject& self)
     return helpers::new_string(t.name);
 }
 
-PyType::PyType(const std::string& name, PyObjectPtr constructor, PyObjectPtr bases) : name(name), constructor(constructor) 
+void PyType::construct(PyObject* self)
 {
-    setattr("__call__", __call__);
-    setattr("__class__", __class__);
+    self->setattr("__call__", __call__);
+    self->setattr("__class__", __class__);
+    self->setattr("__init__", __init__);
+    self->setattr("__name__", __name__);
+    self->setattr("__new__", __new__);
+    self->setattr("__repr__", __repr__);
+    self->setattr("mro", mro);
+}
+
+PyType::PyType(const std::string& name, std::function<void(PyObject*)> constructor, PyObjectPtr bases) : name(name) 
+{
     setattr("__bases__", bases);
-    setattr("__init__", __init__);
+    setattr("__class__", __class__);
     setattr("__name__", __name__);
-    setattr("__new__", __new__);
-    setattr("__repr__", __repr__);
-    setattr("mro", mro);
+    constructor(this);
 }
