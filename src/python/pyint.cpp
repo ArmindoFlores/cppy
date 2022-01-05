@@ -10,11 +10,6 @@ static PyObjectPtr PyInt__repr__(const ParsedFunctionArguments &args)
     return helpers::new_string(std::to_string(args.get_arg_named("self")->as<PyInt>()->value));
 }
 
-static PyObjectPtr PyInt__str__(const ParsedFunctionArguments &args)
-{
-    return PyInt__repr__(args);
-}
-
 static PyObjectPtr PyInt__hash__(const ParsedFunctionArguments &args)
 {
     return args.get_arg_named("self");
@@ -77,7 +72,6 @@ PyObjectPtr PyInt::__add__ = std::make_shared<PyFunction>(PyInt__add__, "__add__
 PyObjectPtr PyInt::__radd__ = std::make_shared<PyFunction>(PyInt__radd__, "__radd__", std::vector<std::string>({"self", "other"}));
 PyObjectPtr PyInt::__sub__ = std::make_shared<PyFunction>(PyInt__sub__, "__sub__", std::vector<std::string>({"self", "other"}));
 PyObjectPtr PyInt::__rsub__ = std::make_shared<PyFunction>(PyInt__rsub__, "__rsub__", std::vector<std::string>({"self", "other"}));
-PyObjectPtr PyInt::__str__ = std::make_shared<PyFunction>(PyInt__str__, "__str__", std::vector<std::string>({"self"}));
 PyObjectPtr PyInt::__repr__ = std::make_shared<PyFunction>(PyInt__repr__, "__repr__", std::vector<std::string>({"self"}));
 
 PyObjectPtr PyInt::__class__(const PyObject&)
@@ -92,7 +86,6 @@ void PyInt::construct(PyObject *self)
     self->setattr("__radd__", __radd__);
     self->setattr("__sub__", __sub__);
     self->setattr("__rsub__", __rsub__);
-    self->setattr("__str__", __str__);
     self->setattr("__repr__", __repr__);
 }
 

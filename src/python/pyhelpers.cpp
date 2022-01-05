@@ -26,6 +26,14 @@ PyObjectPtr helpers::new_none()
     return GI.get("none");
 }
 
+PyObjectPtr helpers::new_bool(bool x)
+{
+    // Note: this doesn't actually create a new object
+    if (x) 
+        return GI.get("True");
+    return GI.get("False");
+}
+
 PyObjectPtr helpers::new_notimpl()
 {
     // Note: this doesn't actually create a new object

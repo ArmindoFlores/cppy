@@ -1,6 +1,7 @@
 #include "pyglobalinstances.h"
 #include "pynone.h"
 #include "pynotimplemented.h"
+#include "pybool.h"
 using namespace cppy;
 using namespace cppy::global;
 
@@ -10,6 +11,8 @@ GlobalInstances::GlobalInstances()
 {
     instances["none"] = std::make_shared<PyNone>();
     instances["notimpl"] = std::make_shared<PyNotImplemented>();
+    instances["True"] = std::make_shared<PyBool>(true);
+    instances["False"] = std::make_shared<PyBool>(false);
 }
 
 GlobalInstances &GlobalInstances::the()

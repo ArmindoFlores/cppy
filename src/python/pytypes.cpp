@@ -2,6 +2,7 @@
 #include "pyhelpers.h"
 #include "pybuiltins.h"
 #include "pyint.h"
+#include "pybool.h"
 #include "pybaseobject.h"
 #include "pylist.h"
 #include "pydict.h"
@@ -68,6 +69,13 @@ BuiltinTypes::BuiltinTypes()
         helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(types["object"])}))
     );
 
+    // <class 'bool'>
+    types["bool"] = std::make_shared<PyType>(
+        "bool",
+        PyBool::construct,
+        helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(types["object"]), std::weak_ptr(types["int"])}))
+    );
+
     // <class 'list'>
     types["list"] = std::make_shared<PyType>(
         "list",
@@ -118,9 +126,11 @@ void BuiltinTypes::init_builtin_types()
 {
     // Hardcode MROs for the builtin types
     for (auto &pair : types) {
-        if (pair.first != "object")
+        if (pair.first != "object" && pair.first != "bool")
             pair.second->setattr("__mro__", helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(pair.second), std::weak_ptr(types["object"])})));
-        else
+        else if (pair.first == "object")
             pair.second->setattr("__mro__", helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(pair.second)})));
+        else
+            pair.second->setattr("__mro__", helpers::new_tuple(std::vector<PyObjectAnyPtr>({std::weak_ptr(pair.second), std::weak_ptr(types["int"]), std::weak_ptr(types["object"])})));
     }
 }

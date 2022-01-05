@@ -9,6 +9,7 @@ namespace cppy {
     class helpers {
     public:
         static PyObjectPtr new_string(const std::string& s);
+        static PyObjectPtr new_bool(bool);
         static PyObjectPtr new_int(long long x);
         static PyObjectPtr new_dict();
         static PyObjectPtr new_tuple();
