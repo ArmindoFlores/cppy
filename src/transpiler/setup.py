@@ -13,12 +13,7 @@ class CustomBuild(setuptools.command.build_py.build_py):
             os.path.isfile(os.path.join("cppy", "Python3Visitor.py"))
         ]):
             print("Trying to generate the parser, lexer and visitor")
-            process = subprocess.run(["java", "org.antlr.v4.Tool", "-Dlanguage=Python3", "-visitor", "-no-listener", os.path.join("cppy", "Python3.g4")])
-            if process.returncode != 0:
-                # Try the second option
-                process = subprocess.run(["antlr4", "-Dlanguage=Python3", "-visitor", "-no-listener", os.path.join("cppy", "Python3.g4")])
-                if process.returncode != 0:
-                    print("Couldn't run antlr4")
+            subprocess.run(["java", "org.antlr.v4.Tool", "-Dlanguage=Python3", "-visitor", "-no-listener", os.path.join("cppy", "Python3.g4")])
         else:
             print("Found parser, lexer and visitor")
         super().run()
