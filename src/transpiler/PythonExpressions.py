@@ -29,7 +29,7 @@ class FunctionCall(Expr):
         self._args = args
         
     def __repr__(self):
-        return f"{self._what}{self._args}"
+        return f"{self._what}({self._args})"
     
     def get_members(self):
         return (self._what, *self._args)

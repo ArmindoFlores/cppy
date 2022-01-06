@@ -21,6 +21,7 @@ class Visitor(Python3Visitor):
     def visitSmall_stmt(self, ctx):
         if ctx.expr_stmt() is not None:
             expr = self.visit(ctx.expr_stmt())
+            self._global_scope.add_cb(CodeGeneration.CBStop())
             print(expr)
         else:
             print("[small_stmt] Not implemented")
@@ -30,15 +31,20 @@ class Visitor(Python3Visitor):
         expr = self.visit(ctx.atom())
         for trailer in ctx.trailer():
             if trailer.arglist() is not None:
-                arglist = self.visitArglist(trailer.arglist(0))
+                arglist = self.visitArglist(trailer.arglist())
                 expr = PythonExpressions.FunctionCall(expr, arglist)
             else:
                 raise NotImplementedError("[atom_expr] Not implemented")
         return expr
+
+    def visitArglist(self, ctx):
+        return [self.visit(argument) for argument in ctx.argument()]
     
     def visitAtom(self, ctx):
         if ctx.NAME() is not None:
             return PythonExpressions.Variable(ctx.NAME().getText())
+        if ctx.STRING() is not None and len(ctx.STRING()) > 0:
+            return PythonExpressions.Literal("".join([s.getText() for s in ctx.STRING()]), "string")
         if ctx.NUMBER() is not None:
             # FIXME: What about floats, complex numbers, and other bases
             return PythonExpressions.Literal(int(ctx.NUMBER().getText()), "int")
@@ -56,12 +62,17 @@ class Visitor(Python3Visitor):
         l = self.visit(ctx.testlist_star_expr(0))
         if len(ctx.testlist_star_expr()) == 2:
             r = self.visit(ctx.testlist_star_expr(1))
+        elif len(ctx.testlist_star_expr()) == 1:
+            r = None
         else:
-            raise NotImplementedError("[expr_stmt] Not implemented")
+            raise NotImplementedError(f"[expr_stmt] Not implemented")
         print("l", l)
         print("r", r)
-        self._global_scope.add_var(l.get_members()[0], {})
-        self._global_scope.add_cb(CodeGeneration.CBAssign(l, r))
+        if r is not None:
+            self._global_scope.add_var(l.get_members()[0], {})
+            self._global_scope.add_cb(CodeGeneration.CBAssign(l, r))
+        else:
+            self._global_scope.add_cb(CodeGeneration.CBName(l))
         
     def visitTestlist_star_expr(self, ctx):
         for child in filter(lambda c: not isinstance(c, antlr4.tree.Tree.TerminalNodeImpl), ctx.getChildren()):

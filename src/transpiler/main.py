@@ -1,3 +1,5 @@
+import subprocess
+
 from antlr4 import CommonTokenStream, FileStream
 from antlr4.tree.Trees import Trees
 
@@ -19,9 +21,11 @@ def main(filename, outfile):
     visitor.visit(tree)
 
     
-    with open(outfile, "w") as f:
+    with open(outfile+".cpp", "w") as f:
         f.write(visitor.getCode())
+
+    subprocess.run(f"g++ -std=c++17 -ggdb -o {outfile} {outfile}.cpp -I../python -L../../build -lcppy", shell=True)
     
 
 if __name__ == "__main__":
-    main("../../tests/test.py", "../../tests/test.cpp")
+    main("../../tests/test.py", "../../tests/test")
