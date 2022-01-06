@@ -2,9 +2,9 @@ from typing import List
 
 import antlr4
 
-import CodeGeneration
-import PythonExpressions
-from Python3Visitor import Python3Visitor
+from . import CodeGeneration
+from . import PythonExpressions
+from .Python3Visitor import Python3Visitor
 
 
 class Visitor(Python3Visitor):

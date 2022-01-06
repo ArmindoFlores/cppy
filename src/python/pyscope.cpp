@@ -1,6 +1,7 @@
 #include "pyscope.h"
 #include "pytraceback.h"
 #include "pyhelpers.h"
+#include "pybuiltins.h"
 using namespace cppy;
 using namespace cppy::global;
 
@@ -44,6 +45,10 @@ PyObjectPtr Scope::get_var(const std::string& var, const std::string& scope) con
 
         prev_pos = new_pos-1;
     }
+
+    // Check for builtin names
+    if (var == "print")
+        return BF.get_function_named("print");
 
     TB.raise("name '" + var + "' is not defined", "NameError");
 

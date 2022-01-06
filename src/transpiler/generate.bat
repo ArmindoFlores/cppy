@@ -1,1 +1,0 @@
-java org.antlr.v4.Tool -Dlanguage=Python3 -visitor -no-listener Python3.g

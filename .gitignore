@@ -1,8 +1,10 @@
 *.interp
 *.tokens
 tests/
-*/__pycache__/*
-src/transpiler/Python3Lexer.py
-src/transpiler/Python3Parser.py
-src/transpiler/Python3Visitor.py
+__pycache__/
+src/transpiler/cppy/Python3Lexer.py
+src/transpiler/cppy/Python3Parser.py
+src/transpiler/cppy/Python3Visitor.py
+src/transpiler/dist/*
+src/transpiler/cppy.egg-info/*
 build/

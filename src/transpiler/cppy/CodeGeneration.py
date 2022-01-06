@@ -1,5 +1,4 @@
-from typing import Literal
-import PythonExpressions
+from . import PythonExpressions
 
 
 def to_literal(value):
@@ -80,7 +79,7 @@ class Scope(CodeBlock):
         var_decl_code = ""
         total_code = var_decl_code + (("\n" + self._parent_ctx.get_code()) if self._parent_ctx is not None else "")
         total_code += "\n".join("\n".join(("\t" + line for line in cb.get_code(self).splitlines())) for cb in self._code_blocks)
-        total_code = f"\ncppy::PyObjectPtr {self.name}()\n\x7b\n{total_code}\n\x7d"
+        total_code = f"\ncppy::PyObjectPtr {self.name}()\n\x7b\n{total_code}\n\treturn cppy::helpers::new_none();\n\x7d"
         return total_code
         
     def has_var(self, name):
