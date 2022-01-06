@@ -16,7 +16,8 @@ To build the project, ensure you have Java and the [ANTLR4 tool](https://www.ant
 1. `mkdir build`
 2. `cd build`
 3. `cmake ..`
-4. `make`
+4. `sudo make install`
+This will compile all the required libraries and install the Python package. You can then use cppy from the command line using `python3 -m cppy`.
 
 ## Python Grammar
 The Python grammar file (`src/transpiler/Python3.g4`) was written by Bart Kiers. [Here](https://github.com/bkiers/python3-parser) is a link to their project.
