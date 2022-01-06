@@ -50,10 +50,10 @@ add_custom_command(
     COMMAND cd ../src/transpiler && ${Python_EXECUTABLE} setup.py build
 )
 
-# add_executable(main
-#     tests/main.cpp
-# )
-# target_include_directories(main PUBLIC src/python)
-# target_link_libraries(main cppy)
+add_executable(main
+    tests/main.cpp
+)
+target_include_directories(main PUBLIC src/python)
+target_link_libraries(main cppy)
 install(TARGETS cppy staticcppy)
 install(CODE "execute_process(COMMAND ${Python_EXECUTABLE} setup.py install WORKING_DIRECTORY ../src/transpiler)")
