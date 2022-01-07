@@ -4,6 +4,7 @@
 #include "pygarbagecollector.h"
 #include "pylist.h"
 #include "pytuple.h"
+#include "pybool.h"
 #include "pydict.h"
 #include "pyfunction.h"
 #include "pytraceback.h"
@@ -111,6 +112,13 @@ PyObjectPtr helpers::call_member(const std::string& name, PyObjectPtr obj, Funct
 inline bool helpers::is(PyObjectPtr obj1, PyObjectPtr obj2)
 {
     return obj1 == obj2;
+}
+
+bool helpers::cbool(PyObjectPtr obj)
+{
+    if (!obj->hasattr("__bool__"))
+        return true;
+    return call_member("__bool__", obj, FunctionArguments({}))->as<PyBool>()->value;
 }
 
 PyObjectPtr helpers::add(PyObjectPtr left, PyObjectPtr right)
