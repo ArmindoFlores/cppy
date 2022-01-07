@@ -21,7 +21,6 @@ class Visitor(Python3Visitor):
     def visitSmall_stmt(self, ctx):
         if ctx.expr_stmt() is not None:
             expr = self.visit(ctx.expr_stmt())
-            self._global_scope.add_cb(CodeGeneration.CBStop())
             print(expr)
         else:
             print("[small_stmt] Not implemented")
@@ -35,6 +34,26 @@ class Visitor(Python3Visitor):
                 expr = PythonExpressions.FunctionCall(expr, arglist)
             else:
                 raise NotImplementedError("[atom_expr] Not implemented")
+        return expr
+
+    def visitArith_expr(self, ctx):
+        v = [self.visit(term) for term in ctx.term()]
+
+        if len(v) == 1:
+            return v[0]
+
+        operations = ctx.ADD() + ctx.MINUS()
+        operations.sort(key=lambda node: node.getPayload().tokenIndex)
+
+        expr = None
+        for i, operation in enumerate(operations):
+            if expr is None:
+                expr = PythonExpressions.OpExpr(v[i], v[i+1], operation.getText())
+            else:
+                expr = PythonExpressions.OpExpr(expr, v[i+1], operation.getText())
+
+        print(expr)
+
         return expr
 
     def visitArglist(self, ctx):
