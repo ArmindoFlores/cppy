@@ -14,8 +14,8 @@ class Visitor(Python3Visitor):
         self._includes: List[str] = []
         
     def getCode(self) -> str:
-        header = "#include \"cppy.h\"\n"
-        footer = "\n\nint main()\n{\n\tglobal();\n}\n"
+        header = "#include \"cppy.h\"\n#include <iostream>\n"
+        footer = "\n\nint main()\n{\n\tTB.push(\"<module>\");\n\ttry {\n\t\tglobal();\n\t}\n\tcatch(cppy::globals::traceback_exception &e) {\n\t\tstd::cout << e.what() << std::flush;\n\t}\n}\n"
         return header + self._global_scope.get_code(None) + footer
         
     def visitSmall_stmt(self, ctx):
@@ -52,9 +52,30 @@ class Visitor(Python3Visitor):
             else:
                 expr = PythonExpressions.OpExpr(expr, v[i+1], operation.getText())
 
-        print(expr)
+        return expr
+
+    def visitTerm(self, ctx):
+        v = [self.visit(factor) for factor in ctx.factor()]
+
+        if len(v) == 1:
+            return v[0]
+
+        operations = ctx.STAR() + ctx.DIV() + ctx.IDIV() + ctx.AT() + ctx.MOD()
+        operations.sort(key=lambda node: node.getPayload().tokenIndex)
+
+        expr = None
+        for i, operation in enumerate(operations):
+            if expr is None:
+                expr = PythonExpressions.OpExpr(v[i], v[i+1], operation.getText())
+            else:
+                expr = PythonExpressions.OpExpr(expr, v[i+1], operation.getText())
 
         return expr
+
+    def visitPower(self, ctx):
+        if ctx.factor() is None:
+            return self.visit(ctx.atom_expr())
+        return PythonExpressions.OpExpr(self.visit(ctx.atom_expr()), self.visit(ctx.factor()), "**")
 
     def visitArglist(self, ctx):
         return [self.visit(argument) for argument in ctx.argument()]
@@ -75,6 +96,8 @@ class Visitor(Python3Visitor):
             return PythonExpressions.Literal(None, "none")
         if ctx.ELLIPSIS() is not None:
             return PythonExpressions.Literal(..., "ellipsis")
+        if ctx.OPEN_PAREN() is not None and ctx.testlist_comp() is not None:
+            return self.visit(ctx.testlist_comp())
         raise NotImplementedError("[atom] Not implemented")
         
     def visitExpr_stmt(self, ctx):

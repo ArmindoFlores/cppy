@@ -72,7 +72,9 @@ class OpExpr(Expr):
         "-": "sub",
         "*": "mul",
         "/": "truediv",
-        "//": "divmod"
+        "//": "divmod",
+        "@": "matmul",
+        "**": "power"
     }
 
     def __init__(self, left, right, op):
@@ -88,4 +90,4 @@ class OpExpr(Expr):
 
     def get_code(self, scope):
         
-        return f"cppy::helpers::{self.OP[self._op]}({self._left.get_code(scope)}, {self._right.get_code(scope)})"
+        return f"cppy::helpers::{self.OP.get(self._op, '???')}({self._left.get_code(scope)}, {self._right.get_code(scope)})"
