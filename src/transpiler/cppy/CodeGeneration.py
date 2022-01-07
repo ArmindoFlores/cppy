@@ -67,3 +67,28 @@ class Scope(CodeBlock):
             return False
         self._variables[name] = var
         return True
+
+class CBIf(CodeBlock):
+    def __init__(self, if_condition, if_body, elifs_conditions, elifs_bodies, else_body):
+        self._if_cond = if_condition
+        self._if_body = if_body
+        self._elifs_conds = elifs_conditions
+        self._elifs_bodies = elifs_bodies
+        self._else_body = else_body
+
+    def get_code(self, scope):
+        if_text = f"if (cppy::helpers::cbool({self._if_cond.get_code(scope)})) " + "{\n"
+        if_text += "\n".join("\n".join(("\t" + line for line in cb.get_code(scope).splitlines())) for cb in self._if_body)
+        if_text += "\n}\n"
+
+        for i in range(len(self._elifs_conds)):
+            if_text += f"else if (cppy::helpers::cbool({self._elifs_conds[i].get_code(scope)})) " + "{\n"
+            if_text += "\n".join("\n".join(("\t" + line for line in cb.get_code(scope).splitlines())) for cb in self._elifs_bodies[i])
+            if_text += "\n}\n"
+
+        if self._else_body is not None:
+            if_text += "else {\n"
+            if_text += "\n".join("\n".join(("\t" + line for line in cb.get_code(scope).splitlines())) for cb in self._else_body)
+            if_text += "\n}\n"
+
+        return if_text

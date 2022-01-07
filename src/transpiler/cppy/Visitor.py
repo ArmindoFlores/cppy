@@ -11,20 +11,44 @@ class Visitor(Python3Visitor):
     def __init__(self) -> None:
         super().__init__()
         self._global_scope = CodeGeneration.Scope("global")
+        self._current_scope = self._global_scope
         self._includes: List[str] = []
         
     def getCode(self) -> str:
         header = "#include \"cppy.h\"\n#include <iostream>\n"
         footer = "\n\nint main()\n{\n\tTB.push(\"<module>\");\n\ttry {\n\t\tglobal();\n\t}\n\tcatch(cppy::globals::traceback_exception &e) {\n\t\tstd::cout << e.what() << std::flush;\n\t}\n}\n"
-        return header + self._global_scope.get_code(None) + footer
+        return header + self._current_scope.get_code(None) + footer
         
     def visitSmall_stmt(self, ctx):
         if ctx.expr_stmt() is not None:
             expr = self.visit(ctx.expr_stmt())
-            print(expr)
         else:
             print("[small_stmt] Not implemented")
             return super().visitSmall_stmt(ctx)
+
+    def visitIf_stmt(self, ctx):
+        if_condition = self.visit(ctx.test(0))
+        last_block = len(self._current_scope._code_blocks)
+        self.visit(ctx.suite(0))
+        if_body = self._current_scope._code_blocks[last_block:]
+        self._current_scope._code_blocks = self._current_scope._code_blocks[:last_block]
+
+        elifs_conditions = []
+        elifs_bodies = []
+        for i in range(len(ctx.ELIF())):
+            elifs_conditions.append(self.visit(ctx.test(i+1)))
+            self.visit(ctx.suite(i))
+            elifs_bodies.append(self._current_scope._code_blocks[last_block:])
+            self._current_scope._code_blocks = self._current_scope._code_blocks[:last_block]
+
+        else_body = None
+        if ctx.ELSE():
+            self.visit(ctx.suite()[-1])
+            else_body = self._current_scope._code_blocks[last_block:]
+            self._current_scope._code_blocks = self._current_scope._code_blocks[:last_block]
+
+        if_stmt = CodeGeneration.CBIf(if_condition, if_body, elifs_conditions, elifs_bodies, else_body)
+        self._current_scope.add_cb(if_stmt)
         
     def visitAtom_expr(self, ctx):
         expr = self.visit(ctx.atom())
@@ -111,10 +135,10 @@ class Visitor(Python3Visitor):
         print("l", l)
         print("r", r)
         if r is not None:
-            self._global_scope.add_var(l.get_members()[0], {})
-            self._global_scope.add_cb(CodeGeneration.CBAssign(l, r))
+            self._current_scope.add_var(l.get_members()[0], {})
+            self._current_scope.add_cb(CodeGeneration.CBAssign(l, r))
         else:
-            self._global_scope.add_cb(CodeGeneration.CBName(l))
+            self._current_scope.add_cb(CodeGeneration.CBName(l))
         
     def visitTestlist_star_expr(self, ctx):
         for child in filter(lambda c: not isinstance(c, antlr4.tree.Tree.TerminalNodeImpl), ctx.getChildren()):
