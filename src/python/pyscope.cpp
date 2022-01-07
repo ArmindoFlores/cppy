@@ -49,6 +49,8 @@ PyObjectPtr Scope::get_var(const std::string& var, const std::string& scope) con
     // Check for builtin names
     if (var == "print")
         return BF.get_function_named("print");
+    if (var == "input")
+        return BF.get_function_named("input");
 
     TB.raise("name '" + var + "' is not defined", "NameError");
 
